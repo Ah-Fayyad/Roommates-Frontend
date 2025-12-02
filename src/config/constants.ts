@@ -1,4 +1,4 @@
-export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+export const API_BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '');
 export const APP_NAME = import.meta.env.VITE_APP_NAME || 'Roommates Finder';
 export const IS_PRODUCTION = import.meta.env.VITE_ENVIRONMENT === 'production';
 export const IS_DEVELOPMENT = import.meta.env.VITE_ENVIRONMENT === 'development';
