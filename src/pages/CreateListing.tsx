@@ -82,8 +82,8 @@ const CreateListing = () => {
         type === "checkbox"
           ? (e.target as HTMLInputElement).checked
           : type === "number"
-          ? Number(value)
-          : value,
+            ? Number(value)
+            : value,
     }));
   };
 
@@ -108,7 +108,7 @@ const CreateListing = () => {
 
       try {
         const res = await axios.post(
-          `${API_BASE_URL}/upload/images`,
+          `${API_BASE_URL}/api/upload/images`,
           formData,
           {
             headers: {
@@ -158,7 +158,7 @@ const CreateListing = () => {
         images: imageUrls, // Send array of strings directly
       };
 
-      await axios.post(`${API_BASE_URL}/listings`, listingData, {
+      await axios.post(`${API_BASE_URL}/api/listings`, listingData, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -214,31 +214,28 @@ const CreateListing = () => {
               <React.Fragment key={s.num}>
                 <div className="flex items-center gap-2">
                   <div
-                    className={`flex h-10 w-10 items-center justify-center rounded-full font-bold transition-all ${
-                      step >= s.num
-                        ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg"
-                        : "bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-400"
-                    }`}
+                    className={`flex h-10 w-10 items-center justify-center rounded-full font-bold transition-all ${step >= s.num
+                      ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg"
+                      : "bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-400"
+                      }`}
                   >
                     {s.num}
                   </div>
                   <span
-                    className={`hidden text-sm font-medium md:block ${
-                      step >= s.num
-                        ? "text-gray-900 dark:text-white"
-                        : "text-gray-500 dark:text-gray-400"
-                    }`}
+                    className={`hidden text-sm font-medium md:block ${step >= s.num
+                      ? "text-gray-900 dark:text-white"
+                      : "text-gray-500 dark:text-gray-400"
+                      }`}
                   >
                     {s.label}
                   </span>
                 </div>
                 {idx < 3 && (
                   <div
-                    className={`h-1 flex-1 rounded-full transition-all ${
-                      step > s.num
-                        ? "bg-gradient-to-r from-indigo-600 to-purple-600"
-                        : "bg-gray-200 dark:bg-gray-700"
-                    }`}
+                    className={`h-1 flex-1 rounded-full transition-all ${step > s.num
+                      ? "bg-gradient-to-r from-indigo-600 to-purple-600"
+                      : "bg-gray-200 dark:bg-gray-700"
+                      }`}
                   ></div>
                 )}
               </React.Fragment>
@@ -289,8 +286,8 @@ const CreateListing = () => {
                         <span className="text-sm text-gray-600 dark:text-gray-400">
                           {formData.latitude && formData.longitude
                             ? `${formData.latitude.toFixed(
-                                4
-                              )}, ${formData.longitude.toFixed(4)}`
+                              4
+                            )}, ${formData.longitude.toFixed(4)}`
                             : "Select on map"}
                         </span>
                       </div>
@@ -464,7 +461,7 @@ const CreateListing = () => {
                       name={feature.name}
                       checked={
                         formData[
-                          feature.name as keyof typeof formData
+                        feature.name as keyof typeof formData
                         ] as boolean
                       }
                       onChange={handleChange}
