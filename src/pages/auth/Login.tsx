@@ -33,7 +33,7 @@ const Login = () => {
   const onSubmit = async (data: LoginForm) => {
     try {
       setError("");
-      const response = await axios.post(`${API_BASE_URL}/auth/login`, {
+      const response = await axios.post(`${API_BASE_URL}/api/auth/login`, {
         email: data.email,
         password: data.password,
       });
