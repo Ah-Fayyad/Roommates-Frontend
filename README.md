@@ -1,121 +1,189 @@
-# Roommates Frontend
+﻿#  منصة البحث عن شركاء السكن - Roommates Platform Frontend
 
-Modern React + TypeScript frontend for the Roommates platform - connecting students with compatible roommates.
+<div dir="rtl">
 
-## Features
+**منصة ذكية وحديثة للبحث عن شركاء سكن متوافقين مع المطابقة الذكية والمحادثات الفورية والأدوات الإدارية المتقدمة**
 
-- 🏠 **Browse Listings**: Search and filter available rooms
-- 💬 **Real-time Chat**: Socket.io powered messaging
-- 🤖 **AI Assistant**: Get help finding the perfect match
-- 📊 **Admin Dashboard**: Manage users, listings, and reports
-- 🌍 **Interactive Maps**: View listings on a map
-- 🔔 **Notifications**: Real-time updates
-- 🌙 **Dark Mode**: Eye-friendly interface
-- 🌐 **Bilingual**: English & Arabic support
+**A modern, full-stack platform for finding compatible roommates with AI-powered matching, real-time chat, and comprehensive admin tools.**
 
-## Tech Stack
+###  الموقع المباشر | Live Demo
 
-- **React 18** with TypeScript
-- **Vite** for fast development
-- **TailwindCSS** for styling
-- **React Router** for navigation
-- **Axios** for API calls
-- **Socket.io** for real-time features
-- **Leaflet** for maps
-- **Framer Motion** for animations
+**[ زيارة الموقع المباشر: https://roommates-frontend.netlify.app/](https://roommates-frontend.netlify.app/)**
 
-## Getting Started
+---
 
-### Prerequisites
+##  المحتويات | Table of Contents
 
-- Node.js 18+ and npm
-- Backend server running (see [Roommates-Backend](https://github.com/Ah-Fayyad/Roommates-Backend))
+- [نظرة عامة](#نظرة-عامة)
+- [المميزات](#المميزات)
+- [التقنيات](#التقنيات-المستخدمة)
+- [البدء السريع](#البدء-السريع)
+- [التثبيت](#التثبيت)
+- [الاستخدام](#كيفية-الاستخدام)
+- [النشر](#النشر)
 
-### Installation
+---
 
-1. Clone the repository:
+## نظرة عامة | Overview
+
+منصة **Roommates** تطبيق ويب حديث يسهل البحث عن شركاء سكن متوافقين
+
+ **محرك مطابقة ذكي**   **محادثات فورية**   **خريطة تفاعلية**   **مساعد ذكي**   **لوحة تحكم**
+
+---
+
+## المميزات | Features
+
+###  للمستخدمين
+-  بحث متقدم مع فلاتر
+-  محادثات آنية
+-  جدولة الزيارات
+-  قائمة المفضلة
+-  مطابقة ذكية
+
+###  للمالكين
+-  إنشاء إعلانات
+-  إحصائيات
+-  رفع صور
+-  اقتراحات أسعار
+-  إدارة الزيارات
+
+---
+
+## التقنيات | Tech Stack
+
+- **React 18** + TypeScript
+- **Vite** - Build Tool
+- **Tailwind CSS v4** - Styling
+- **Axios** - HTTP Client
+- **React Router v6** - Navigation
+- **Socket.io** - Real-time
+- **react-i18next** - Bilingual (AR/EN)
+
+---
+
+## البدء السريع | Quick Start
+
 ```bash
-git clone https://github.com/Ah-Fayyad/Roommates-Frontend.git
+# استنساخ وتثبيت
+git clone https://github.com/Ah-Fayyad/Roommates-Frontend
 cd Roommates-Frontend
-```
-
-2. Install dependencies:
-```bash
 npm install
-```
 
-3. Create `.env.development` file:
-```env
-VITE_API_URL=http://localhost:5000/api
-VITE_APP_NAME=Roommates Finder
-VITE_ENVIRONMENT=development
-```
+# إعداد المتغيرات
+echo "VITE_API_URL=http://localhost:5000" > .env.development
 
-4. Start the development server:
-```bash
+# التشغيل
 npm run dev
 ```
 
-The app will be available at `http://localhost:5174`
+**يعمل على:** http://localhost:5174
 
-## Available Scripts
+---
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
+## التثبيت الكامل | Full Installation
 
-## Project Structure
+### المتطلبات
+- Node.js v18+
+- npm v9+
+- Backend قيد التشغيل
+
+### خطوات التثبيت
+1. استنساخ المستودع
+2. تثبيت المكتبات: `npm install`
+3. إعداد `.env.development`
+4. تشغيل: `npm run dev`
+
+### متغيرات البيئة
+```env
+# .env.development
+VITE_API_URL=http://localhost:5000
+
+# .env.production
+VITE_API_URL=https://your-backend-api.com
+```
+
+---
+
+## كيفية الاستخدام | Usage
+
+1. **التسجيل**  Signup (User/Landlord)
+2. **البحث**  Listings (مع فلاتر وخريطة)
+3. **التواصل**  Chat (رسائل فورية)
+4. **الزيارات**  Schedule visits
+
+---
+
+## البنية | Project Structure
 
 ```
 src/
-├── components/      # Reusable UI components
-├── pages/          # Page components
-├── context/        # React Context providers
-├── services/       # API services
-├── routes/         # Route configurations
-├── locales/        # i18n translations
-└── index.css       # Global styles
+ pages/          # الصفحات
+ components/     # المكونات
+ context/        # React Context
+ services/       # API Services
+ locales/        # الترجمات (AR/EN)
+ types/          # TypeScript
 ```
 
-## Environment Variables
+---
 
-Create a `.env.development` file with:
+## الأوامر | Commands
 
-- `VITE_API_URL` - Backend API URL
-- `VITE_APP_NAME` - Application name
-- `VITE_ENVIRONMENT` - Environment (development/production)
+```bash
+npm run dev       # تطوير
+npm run build     # بناء
+npm run preview   # معاينة
+npm test          # اختبارات
+npm run lint      # فحص
+```
 
-## Demo Accounts
+---
 
-After seeding the backend database:
+## النشر | Deployment
 
-- **Landlord**: `landlord@test.com` / `123456`
-- **Tenant**: `tenant@test.com` / `123456`
-- **Admin**: `admin@test.com` / `123456`
+### Netlify (موصى به)
+```bash
+# من GitHub أو Terminal
+npm run build
+netlify deploy --prod --dir=dist
+```
 
-## Deployment
+### Vercel
+```bash
+npm install -g vercel
+vercel
+```
 
-### Railway / Vercel / Netlify
+---
 
-1. Connect your GitHub repository
-2. Set environment variables:
-   - `VITE_API_URL=https://your-backend-url.com/api`
-3. Build command: `npm run build`
-4. Output directory: `dist`
+## الأمان | Security
 
-## Contributing
+ HTTPS Only
+ XSS Protection
+ Input Validation
+ JWT Tokens
 
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Open a Pull Request
+---
 
-## License
+## الدعم | Support
 
-MIT License - see LICENSE file for details
+-  support@roommates.com
+-  GitHub Issues
+-  Documentation
 
-## Support
+---
 
-For issues and questions, please open an issue on GitHub.
+## الترخيص | License
+
+MIT License
+
+<div dir="ltr">
+
+**Last Updated:** February 22, 2026
+**Status:**  Production Ready
+**Version:** 1.0.0
+
+</div>
+
+</div>
