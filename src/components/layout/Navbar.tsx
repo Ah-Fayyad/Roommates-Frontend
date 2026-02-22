@@ -1,195 +1,326 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import { useTheme } from '../../context/ThemeContext';
-import { useTranslation } from 'react-i18next';
-import { Button } from '../ui/Button';
-import { Moon, Sun, Menu, X, Home, Search, MessageCircle, User, LogOut, Settings, Heart } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import { useTheme } from "../../context/ThemeContext";
+import { useTranslation } from "react-i18next";
+import axios from "axios";
+import { Button } from "../ui/Button";
+import { API_BASE_URL } from "../../config/constants";
+import {
+  Moon,
+  Sun,
+  Menu,
+  X,
+  Home,
+  Search,
+  MessageCircle,
+  User,
+  LogOut,
+  Settings,
+  Heart,
+  Users,
+  LayoutDashboard,
+  Building,
+  PlusCircle,
+  Flag,
+  FileText,
+  Sparkles,
+  Calendar,
+} from "lucide-react";
 
 const Navbar = () => {
-    const { user, logout } = useAuth();
-    const { theme, toggleTheme } = useTheme();
-    const { t, i18n } = useTranslation();
-    const navigate = useNavigate();
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user, logout, token } = useAuth();
+  const { theme, toggleTheme } = useTheme();
+  const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-    const handleLogout = () => {
-        logout();
-        navigate('/');
-    };
+  const isOnboarding =
+    location.pathname === "/signup" || location.pathname === "/onboarding";
 
-    const toggleLanguage = () => {
-        const newLang = i18n.language === 'en' ? 'ar' : 'en';
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
+
+  const [isSwitchingLanguage, setIsSwitchingLanguage] = useState(false);
+
+  const toggleLanguage = async () => {
+    setIsSwitchingLanguage(true);
+    const newLang = i18n.language === "en" ? "ar" : "en";
+
+    try {
+      // Sync to backend if user is authenticated
+      if (token && user) {
+        await axios.put(
+          `${API_BASE_URL}/users/settings`,
+          { language: newLang },
+          { headers: { Authorization: `Bearer ${token}` } },
+        );
+      }
+
+      // Apply language change with a small delay for premium feel
+      setTimeout(() => {
         i18n.changeLanguage(newLang);
-        document.dir = newLang === 'ar' ? 'rtl' : 'ltr';
-    };
+        localStorage.setItem("language", newLang);
+        document.dir = newLang === "ar" ? "rtl" : "ltr";
+        setIsSwitchingLanguage(false);
+      }, 800);
+    } catch (error) {
+      console.error("Failed to update language preference:", error);
+      setIsSwitchingLanguage(false);
+    }
+  };
 
-    const navLinks = user ? [
-        { to: '/listings', icon: Search, label: 'Browse' },
-        { to: '/matches', icon: Heart, label: 'Matches' },
-        { to: '/chat', icon: MessageCircle, label: 'Chat' },
-        { to: '/profile', icon: User, label: 'Profile' },
-    ] : [
-        { to: '/', icon: Home, label: 'Home' },
-        { to: '/listings', icon: Search, label: 'Browse' },
+  const getNavLinks = () => {
+    if (!user) {
+      return [
+        { to: "/", icon: Home, label: t("home") },
+        { to: "/listings", icon: Search, label: t("browse_listings") },
+      ];
+    }
+
+    if (user.role === "ADMIN") {
+      return [
+        { to: "/listings", icon: Search, label: t("browse_listings") },
+        { to: "/admin/users", icon: Users, label: t("user_management") },
+        { to: "/admin/reports", icon: Flag, label: t("reports") },
+        { to: "/admin/content", icon: FileText, label: t("content_control") },
+      ];
+    }
+
+    if (user.role === "LANDLORD" || user.role === "ADVERTISER") {
+      return [
+        { to: "/listings", icon: Search, label: t("browse_listings") },
+        { to: "/my-listings", icon: Building, label: t("my_properties") },
+        { to: "/my-visits", icon: Calendar, label: t("my_visits") },
+        { to: "/listings/create", icon: PlusCircle, label: t("post_new_room") },
+        { to: "/chat", icon: MessageCircle, label: t("messages") },
+      ];
+    }
+
+    // Standard USER (Tenant)
+    return [
+      { to: "/listings", icon: Search, label: t("find_room") },
+      { to: "/matches", icon: Sparkles, label: t("smart_matching") },
+      { to: "/my-visits", icon: Calendar, label: t("my_visits") },
+      { to: "/chat", icon: MessageCircle, label: t("messages") },
+      { to: "/favorites", icon: Heart, label: t("saved_rooms") },
     ];
+  };
 
-    return (
-        <nav className="glass sticky top-0 z-50 border-b border-gray-200/50 dark:border-gray-700/50">
-            <div className="container mx-auto px-4">
-                <div className="flex h-16 items-center justify-between">
-                    {/* Logo */}
-                    <Link to="/" className="group flex items-center gap-2">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 shadow-lg transition-transform duration-300 group-hover:scale-110">
-                            <Home className="h-5 w-5 text-white" />
-                        </div>
-                        <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-xl font-bold text-transparent">
-                            Roommates
-                        </span>
-                    </Link>
+  const navLinks = getNavLinks();
 
-                    {/* Desktop Navigation */}
-                    <div className="hidden items-center gap-6 md:flex">
-                        {navLinks.map((link) => {
-                            const Icon = link.icon;
-                            return (
-                                <Link
-                                    key={link.to}
-                                    to={link.to}
-                                    className="group flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 transition-all duration-200 hover:bg-indigo-50 hover:text-indigo-600 dark:text-gray-300 dark:hover:bg-indigo-950 dark:hover:text-indigo-400"
-                                >
-                                    <Icon className="h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
-                                    {link.label}
-                                </Link>
-                            );
-                        })}
-                    </div>
-
-                    {/* Right Actions */}
-                    <div className="flex items-center gap-3">
-                        {/* Theme Toggle */}
-                        <button
-                            onClick={toggleTheme}
-                            className="rounded-lg p-2 text-gray-700 transition-all duration-200 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
-                            aria-label="Toggle theme"
-                        >
-                            {theme === 'dark' ? (
-                                <Sun className="h-5 w-5" />
-                            ) : (
-                                <Moon className="h-5 w-5" />
-                            )}
-                        </button>
-
-                        {/* Language Toggle */}
-                        <button
-                            onClick={toggleLanguage}
-                            className="rounded-lg px-3 py-2 text-sm font-medium text-gray-700 transition-all duration-200 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
-                        >
-                            {i18n.language === 'en' ? 'العربية' : 'English'}
-                        </button>
-
-                        {/* Auth Buttons */}
-                        {user ? (
-                            <div className="hidden items-center gap-2 md:flex">
-                                <Link to="/settings">
-                                    <Button variant="ghost" size="icon">
-                                        <Settings className="h-5 w-5" />
-                                    </Button>
-                                </Link>
-                                <Button variant="outline" size="sm" onClick={handleLogout}>
-                                    <LogOut className="mr-2 h-4 w-4" />
-                                    Logout
-                                </Button>
-                            </div>
-                        ) : (
-                            <div className="hidden items-center gap-2 md:flex">
-                                <Link to="/login">
-                                    <Button variant="ghost" size="sm">
-                                        Login
-                                    </Button>
-                                </Link>
-                                <Link to="/signup">
-                                    <Button variant="gradient" size="sm">
-                                        Sign Up
-                                    </Button>
-                                </Link>
-                            </div>
-                        )}
-
-                        {/* Mobile Menu Button */}
-                        <button
-                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                            className="rounded-lg p-2 text-gray-700 transition-all duration-200 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 md:hidden"
-                        >
-                            {isMobileMenuOpen ? (
-                                <X className="h-6 w-6" />
-                            ) : (
-                                <Menu className="h-6 w-6" />
-                            )}
-                        </button>
-                    </div>
-                </div>
-
-                {/* Mobile Menu */}
-                {isMobileMenuOpen && (
-                    <div className="animate-fadeIn border-t border-gray-200/50 py-4 dark:border-gray-700/50 md:hidden">
-                        <div className="flex flex-col gap-2">
-                            {navLinks.map((link) => {
-                                const Icon = link.icon;
-                                return (
-                                    <Link
-                                        key={link.to}
-                                        to={link.to}
-                                        onClick={() => setIsMobileMenuOpen(false)}
-                                        className="flex items-center gap-3 rounded-lg px-4 py-3 text-gray-700 transition-all duration-200 hover:bg-indigo-50 hover:text-indigo-600 dark:text-gray-300 dark:hover:bg-indigo-950 dark:hover:text-indigo-400"
-                                    >
-                                        <Icon className="h-5 w-5" />
-                                        {link.label}
-                                    </Link>
-                                );
-                            })}
-
-                            {user ? (
-                                <>
-                                    <Link
-                                        to="/settings"
-                                        onClick={() => setIsMobileMenuOpen(false)}
-                                        className="flex items-center gap-3 rounded-lg px-4 py-3 text-gray-700 transition-all duration-200 hover:bg-indigo-50 hover:text-indigo-600 dark:text-gray-300 dark:hover:bg-indigo-950 dark:hover:text-indigo-400"
-                                    >
-                                        <Settings className="h-5 w-5" />
-                                        Settings
-                                    </Link>
-                                    <button
-                                        onClick={() => {
-                                            handleLogout();
-                                            setIsMobileMenuOpen(false);
-                                        }}
-                                        className="flex items-center gap-3 rounded-lg px-4 py-3 text-red-600 transition-all duration-200 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950"
-                                    >
-                                        <LogOut className="h-5 w-5" />
-                                        Logout
-                                    </button>
-                                </>
-                            ) : (
-                                <div className="mt-4 flex flex-col gap-2 px-4">
-                                    <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
-                                        <Button variant="outline" className="w-full">
-                                            Login
-                                        </Button>
-                                    </Link>
-                                    <Link to="/signup" onClick={() => setIsMobileMenuOpen(false)}>
-                                        <Button variant="gradient" className="w-full">
-                                            Sign Up
-                                        </Button>
-                                    </Link>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                )}
+  return (
+    <>
+      {/* Language Switching Loading Overlay */}
+      {isSwitchingLanguage && (
+        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white/90 backdrop-blur-md dark:bg-gray-950/90 animate-fadeIn">
+          <div className="relative flex flex-col items-center">
+            <div className="w-20 h-20 border-4 border-indigo-600 rounded-full shadow-xl animate-spin border-t-transparent"></div>
+            <div className="mt-8 text-center">
+              <h2 className="text-2xl font-bold text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text animate-pulse">
+                {i18n.language === "en"
+                  ? "جاري التحويل للعربية..."
+                  : "Switching to English..."}
+              </h2>
+              <p className="mt-2 font-medium text-gray-500">{t("loading")}</p>
             </div>
-        </nav>
-    );
+          </div>
+        </div>
+      )}
+
+      <nav className="sticky top-0 z-50 border-b glass border-gray-200/50 dark:border-gray-700/50">
+        <div className="container px-4 mx-auto">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo */}
+            <Link to="/" className="flex items-center gap-3 group">
+              <div className="flex items-center justify-center w-12 h-12 overflow-hidden transition-all duration-300 rounded-full shadow-lg group-hover:scale-110 group-hover:shadow-xl">
+                <img
+                  src="/images/logo.png"
+                  alt="Roommates Logo"
+                  className="object-cover w-full h-full"
+                />
+              </div>
+              <span className="text-xl font-bold text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text">
+                Roommates
+              </span>
+            </Link>
+
+            {/* Desktop Navigation */}
+            {!isOnboarding && (
+              <div className="items-center hidden gap-6 md:flex">
+                {navLinks.map((link) => {
+                  const Icon = link.icon;
+                  return (
+                    <Link
+                      key={link.to}
+                      to={link.to}
+                      className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 transition-all duration-200 rounded-lg group hover:bg-indigo-50 hover:text-indigo-600 dark:text-gray-300 dark:hover:bg-indigo-950 dark:hover:text-indigo-400"
+                    >
+                      <Icon className="w-4 h-4 transition-transform duration-200 group-hover:scale-110" />
+                      {link.label}
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Right Actions */}
+            <div className="flex items-center gap-3">
+              {/* Theme Toggle */}
+              <button
+                onClick={toggleTheme}
+                className="p-2 text-gray-700 transition-all duration-200 rounded-lg hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+                aria-label="Toggle theme"
+              >
+                {theme === "dark" ? (
+                  <Sun className="w-5 h-5" />
+                ) : (
+                  <Moon className="w-5 h-5" />
+                )}
+              </button>
+
+              {/* Language Toggle */}
+              <button
+                onClick={toggleLanguage}
+                className="px-3 py-2 text-sm font-medium text-gray-700 transition-all duration-200 rounded-lg hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+              >
+                {i18n.language === "en" ? "العربية" : "English"}
+              </button>
+
+              {/* Auth Buttons */}
+              {!isOnboarding && (
+                <>
+                  {user ? (
+                    <div className="items-center hidden gap-2 md:flex">
+                      <Link
+                        to={
+                          user.role === "ADMIN"
+                            ? "/admin/settings"
+                            : "/settings"
+                        }
+                      >
+                        <Button variant="ghost" size="icon">
+                          <Settings className="w-5 h-5" />
+                        </Button>
+                      </Link>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleLogout}
+                      >
+                        <LogOut className="w-4 h-4 mr-2" />
+                        {t("logout")}
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="items-center hidden gap-2 md:flex">
+                      <Link to="/login">
+                        <Button variant="ghost" size="sm">
+                          {t("login")}
+                        </Button>
+                      </Link>
+                      <Link to="/signup">
+                        <Button variant="gradient" size="sm">
+                          {t("signup")}
+                        </Button>
+                      </Link>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="p-2 text-gray-700 transition-all duration-200 rounded-lg hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 md:hidden"
+              >
+                {isMobileMenuOpen ? (
+                  <X className="w-6 h-6" />
+                ) : (
+                  <Menu className="w-6 h-6" />
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Mobile Menu */}
+          {isMobileMenuOpen && (
+            <div className="py-4 border-t animate-fadeIn border-gray-200/50 dark:border-gray-700/50 md:hidden">
+              <div className="flex flex-col gap-2">
+                {!isOnboarding && (
+                  <div className="flex flex-col gap-2">
+                    {navLinks.map((link) => {
+                      const Icon = link.icon;
+                      return (
+                        <Link
+                          key={link.to}
+                          to={link.to}
+                          onClick={() => setIsMobileMenuOpen(false)}
+                          className="flex items-center gap-3 px-4 py-3 text-gray-700 transition-all duration-200 rounded-lg hover:bg-indigo-50 hover:text-indigo-600 dark:text-gray-300 dark:hover:bg-indigo-950 dark:hover:text-indigo-400"
+                        >
+                          <Icon className="w-5 h-5" />
+                          {link.label}
+                        </Link>
+                      );
+                    })}
+
+                    {user ? (
+                      <>
+                        <Link
+                          to={
+                            user.role === "ADMIN"
+                              ? "/admin/settings"
+                              : "/settings"
+                          }
+                          onClick={() => setIsMobileMenuOpen(false)}
+                          className="flex items-center gap-3 px-4 py-3 text-gray-700 transition-all duration-200 rounded-lg hover:bg-indigo-50 hover:text-indigo-600 dark:text-gray-300 dark:hover:bg-indigo-950 dark:hover:text-indigo-400"
+                        >
+                          <Settings className="w-5 h-5" />
+                          {t("settings")}
+                        </Link>
+                        <button
+                          onClick={() => {
+                            handleLogout();
+                            setIsMobileMenuOpen(false);
+                          }}
+                          className="flex items-center gap-3 px-4 py-3 text-red-600 transition-all duration-200 rounded-lg hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950"
+                        >
+                          <LogOut className="w-5 h-5" />
+                          {t("logout")}
+                        </button>
+                      </>
+                    ) : (
+                      <div className="flex flex-col gap-2 px-4 mt-4">
+                        <Link
+                          to="/login"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          <Button variant="outline" className="w-full">
+                            {t("login")}
+                          </Button>
+                        </Link>
+                        <Link
+                          to="/signup"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          <Button variant="gradient" className="w-full">
+                            {t("signup")}
+                          </Button>
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </nav>
+    </>
+  );
 };
 
 export default Navbar;

@@ -22,20 +22,20 @@ import {
 } from "lucide-react";
 
 const Profile = () => {
-  const { user, token } = useAuth();
+  const { user, token, updateUser } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
   const [profile, setProfile] = useState({
-    fullName: user?.fullName || "John Doe",
-    email: user?.email || "john@university.edu",
-    phone: "+1 (555) 123-4567",
-    location: "San Francisco, CA",
-    university: "Stanford University",
+    fullName: user?.fullName || "",
+    email: user?.email || "",
+    phone: "+20 123 456 7890",
+    location: "Cairo, Egypt",
+    university: user?.university || "",
     major: "Computer Science",
     year: "Junior",
-    bio: "Clean, organized, and friendly student looking for a compatible roommate. I enjoy studying in quiet environments and cooking healthy meals.",
-    avatar: user?.avatar || "https://i.pravatar.cc/150?img=12",
+    bio: user?.bio || "I'm looking for a clean and quiet roommate.",
+    avatar: user?.avatar || "https://images.unsplash.com/photo-1535711861845-e1fc4c208451?q=80&w=400",
     preferences: {
       cleanliness: 9,
       quietHours: 8,
@@ -44,6 +44,20 @@ const Profile = () => {
     },
     interests: ["Reading", "Cooking", "Hiking", "Gaming"],
   });
+
+  // Sync with auth user when it updates
+  React.useEffect(() => {
+    if (user) {
+      setProfile(prev => ({
+        ...prev,
+        fullName: user.fullName,
+        email: user.email,
+        university: user.university || prev.university,
+        bio: user.bio || prev.bio,
+        avatar: user.avatar || prev.avatar
+      }));
+    }
+  }, [user]);
 
   const [uploading, setUploading] = useState(false);
 
@@ -75,9 +89,12 @@ const Profile = () => {
     setIsSaving(true);
     setError("");
     try {
-      await axios.put(`${API_BASE_URL}/users/profile`, profile, {
+      const res = await axios.put(`${API_BASE_URL}/users/profile`, profile, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      if (res.data.user) {
+        updateUser(res.data.user);
+      }
       setIsEditing(false);
     } catch (err: any) {
       setError(err.response?.data?.message || "Failed to update profile");
@@ -352,8 +369,8 @@ const Profile = () => {
               <h2 className="mb-4 text-xl font-bold text-gray-900 dark:text-white">
                 Quick Actions
               </h2>
-              <div className="space-y-2">
-                <Link to="/create-listing">
+              <div className="space-y-4">
+                <Link to="/listings/create">
                   <Button variant="outline" className="w-full justify-start">
                     <Home className="mr-2 h-4 w-4" />
                     Create Listing

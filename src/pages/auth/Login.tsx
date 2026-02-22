@@ -1,12 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useTranslation } from "react-i18next";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { useAuth } from "../../context/AuthContext";
+import { useToast } from "../../context/ToastContext";
 import { Mail, Lock, ArrowRight, Sparkles } from "lucide-react";
 import { API_BASE_URL } from "../../config/constants";
 
@@ -19,7 +21,9 @@ type LoginForm = z.infer<typeof loginSchema>;
 
 const Login = () => {
   const { login } = useAuth();
+  const { addToast } = useToast();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [error, setError] = useState("");
 
   const {
@@ -33,16 +37,24 @@ const Login = () => {
   const onSubmit = async (data: LoginForm) => {
     try {
       setError("");
-      const response = await axios.post(`${API_BASE_URL}/api/auth/login`, {
+      const response = await axios.post(`${API_BASE_URL}/auth/login`, {
         email: data.email,
         password: data.password,
       });
 
       const { token, user } = response.data;
       login(token, user);
-      navigate("/listings");
+      addToast(`${t('welcome_back')}, ${user.fullName}!`, "success");
+
+      if (user.role === 'ADMIN') {
+        navigate("/admin");
+      } else {
+        navigate("/listings");
+      }
     } catch (err: any) {
-      setError(err.response?.data?.message || "Invalid email or password");
+      const errMsg = err.response?.data?.message || "Invalid email or password";
+      setError(errMsg);
+      addToast(errMsg, "error");
     }
   };
 
@@ -63,13 +75,13 @@ const Login = () => {
           <div className="mb-8 text-center">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-indigo-50 px-4 py-2 text-sm font-medium text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400">
               <Sparkles className="h-4 w-4" />
-              <span>Welcome Back</span>
+              <span>{t('welcome_back')}</span>
             </div>
             <h2 className="mb-2 text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
-              Sign in to your account
+              {t('sign_in')}
             </h2>
             <p className="text-gray-600 dark:text-gray-400">
-              Continue your roommate search journey
+              {t('find_perfect_match')}
             </p>
           </div>
 
@@ -84,7 +96,7 @@ const Login = () => {
             )}
 
             <Input
-              label="Email Address"
+              label={t('email')}
               type="email"
               placeholder="name@university.edu"
               icon={<Mail className="h-5 w-5" />}
@@ -93,7 +105,7 @@ const Login = () => {
             />
 
             <Input
-              label="Password"
+              label={t('password')}
               type="password"
               placeholder="••••••••"
               icon={<Lock className="h-5 w-5" />}
@@ -108,14 +120,14 @@ const Login = () => {
                   className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                 />
                 <span className="text-gray-600 dark:text-gray-400">
-                  Remember me
+                  {t('remember_me')}
                 </span>
               </label>
               <Link
                 to="/forgot-password"
                 className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
               >
-                Forgot password?
+                {t('forgot_password')}
               </Link>
             </div>
 
@@ -128,7 +140,7 @@ const Login = () => {
             >
               {!isSubmitting && (
                 <>
-                  Sign in
+                  {t('sign_in')}
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </>
               )}
@@ -138,19 +150,19 @@ const Login = () => {
           {/* Divider */}
           <div className="my-8 flex items-center gap-4">
             <div className="h-px flex-1 bg-gray-200 dark:bg-gray-700"></div>
-            <span className="text-sm text-gray-500 dark:text-gray-400">or</span>
+            <span className="text-sm text-gray-500 dark:text-gray-400">{t('or')}</span>
             <div className="h-px flex-1 bg-gray-200 dark:bg-gray-700"></div>
           </div>
 
           {/* Sign up link */}
           <div className="text-center">
             <p className="text-gray-600 dark:text-gray-400">
-              Don't have an account?{" "}
+              {t('dont_have_account')}{" "}
               <Link
                 to="/signup"
                 className="font-semibold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
               >
-                Sign up for free
+                {t('signup')}
               </Link>
             </p>
           </div>

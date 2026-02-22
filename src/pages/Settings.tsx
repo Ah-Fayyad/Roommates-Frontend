@@ -17,9 +17,10 @@ import {
   Save,
   Eye,
   EyeOff,
+  Phone,
 } from "lucide-react";
 import axios from "axios";
-import { API_BASE_URL } from '@/config/constants';
+import { API_BASE_URL } from "@/config/constants";
 
 const Settings = () => {
   const { user, logout, token } = useAuth();
@@ -33,6 +34,8 @@ const Settings = () => {
   const [settings, setSettings] = useState({
     // Account
     email: user?.email || "",
+    fullName: user?.fullName || "",
+    phoneNumber: user?.phoneNumber || "",
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
@@ -59,10 +62,19 @@ const Settings = () => {
     setSuccess("");
 
     try {
-      await axios.put(`${API_BASE_URL}/users/settings`, settings, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axios.put(
+        `${API_BASE_URL}/users/settings`,
+        settings,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
       setSuccess("Settings saved successfully!");
+
+      // Update local storage user if returned
+      // (Depends on if user context re-fetches or manually updates)
+      // Assuming context will handle refresh or we need to update user context manually.
+      // But for now, backend persists it.
 
       // Clear password fields after save
       setSettings({
@@ -78,22 +90,45 @@ const Settings = () => {
     }
   };
 
-  const handleDeleteAccount = () => {
+  const handleDeleteAccount = async () => {
     if (
       confirm(
-        "Are you sure you want to delete your account? This action cannot be undone."
+        "Are you sure you want to delete your account? This action cannot be undone and will permanently remove all your data, listings, and messages.",
       )
     ) {
-      // Delete account logic
-      logout();
+      try {
+        await axios.delete(`${API_BASE_URL}/users/account`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        logout();
+      } catch (err: any) {
+        setError(
+          err.response?.data?.message ||
+            "Failed to delete account. Please try again later.",
+        );
+        console.error("Account deletion failed", err);
+      }
     }
   };
 
-  const toggleLanguage = () => {
+  const toggleLanguage = async () => {
     const newLang = i18n.language === "en" ? "ar" : "en";
-    i18n.changeLanguage(newLang);
-    document.dir = newLang === "ar" ? "rtl" : "ltr";
-    setSettings({ ...settings, language: newLang });
+
+    try {
+      // Sync language preference to backend
+      await axios.put(
+        `${API_BASE_URL}/users/settings`,
+        { language: newLang },
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+
+      // Update UI
+      i18n.changeLanguage(newLang);
+      document.dir = newLang === "ar" ? "rtl" : "ltr";
+      setSettings({ ...settings, language: newLang });
+    } catch (err) {
+      console.error("Failed to update language setting:", err);
+    }
   };
 
   return (
@@ -120,6 +155,25 @@ const Settings = () => {
             </div>
 
             <div className="space-y-4">
+              <Input
+                label="Full Name"
+                type="text"
+                value={settings.fullName}
+                onChange={(e) =>
+                  setSettings({ ...settings, fullName: e.target.value })
+                }
+                icon={<User className="h-5 w-5" />}
+              />
+              <Input
+                label="Phone Number"
+                type="tel"
+                value={settings.phoneNumber}
+                onChange={(e) =>
+                  setSettings({ ...settings, phoneNumber: e.target.value })
+                }
+                icon={<Phone className="h-5 w-5" />}
+                placeholder="+20 1xx xxxx xxx"
+              />
               <Input
                 label="Email Address"
                 type="email"

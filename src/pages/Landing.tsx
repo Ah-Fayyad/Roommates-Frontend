@@ -2,51 +2,53 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
 import { Search, Shield, Users, Heart, Sparkles, Home, MessageCircle } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 
 const Landing = () => {
     const { t } = useTranslation();
+    const { isAuthenticated } = useAuth();
 
     const features = [
         {
             icon: Users,
-            title: 'Smart Matching',
-            description: 'Our AI-powered algorithm matches you with roommates who share your habits and lifestyle.',
+            title: t('smart_matching'),
+            description: t('smart_matching_desc'),
             color: 'text-indigo-500',
             bgColor: 'bg-indigo-50 dark:bg-indigo-900/20'
         },
         {
             icon: Shield,
-            title: 'Verified Profiles',
-            description: 'We verify student IDs and profiles to ensure a safe and trusted community.',
+            title: t('verified_profiles'),
+            description: t('verified_profiles_desc'),
             color: 'text-pink-500',
             bgColor: 'bg-pink-50 dark:bg-pink-900/20'
         },
         {
             icon: Heart,
-            title: 'Lifestyle Fit',
-            description: 'Filter by cleanliness, study habits, pets, and budget to find your perfect match.',
+            title: t('lifestyle_fit'),
+            description: t('lifestyle_fit_desc'),
             color: 'text-purple-500',
             bgColor: 'bg-purple-50 dark:bg-purple-900/20'
         },
         {
             icon: Home,
-            title: 'Quality Listings',
-            description: 'Browse verified room listings with detailed photos, prices, and amenities.',
+            title: t('quality_listings'),
+            description: t('quality_listings_desc'),
             color: 'text-emerald-500',
             bgColor: 'bg-emerald-50 dark:bg-emerald-900/20'
         },
         {
             icon: MessageCircle,
-            title: 'Instant Chat',
-            description: 'Connect and chat with potential roommates instantly through our secure messaging.',
+            title: t('instant_chat'),
+            description: t('instant_chat_desc'),
             color: 'text-blue-500',
             bgColor: 'bg-blue-50 dark:bg-blue-900/20'
         },
         {
             icon: Sparkles,
-            title: 'AI Assistant',
-            description: 'Get personalized recommendations and answers to your questions 24/7.',
+            title: t('ai_assistant'),
+            description: t('ai_assistant_desc'),
             color: 'text-amber-500',
             bgColor: 'bg-amber-50 dark:bg-amber-900/20'
         }
@@ -68,16 +70,18 @@ const Landing = () => {
                     <div className="animate-fadeInUp">
                         <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-2 text-sm font-medium text-indigo-600 shadow-lg backdrop-blur-sm dark:bg-gray-800/80 dark:text-indigo-400">
                             <Sparkles className="h-4 w-4" />
-                            <span>AI-Powered Roommate Matching</span>
+                            <span>{t('ai_badge')}</span>
                         </div>
                     </div>
 
-                    <h1 className="animate-fadeInUp stagger-1 mb-6 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-5xl font-extrabold tracking-tight text-transparent md:text-7xl">
-                        Find Your Perfect
+                    <h1 className="animate-fadeInUp stagger-1 mb-6 text-5xl font-extrabold tracking-tight md:text-7xl leading-tight text-gray-900 dark:text-white">
+                        <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                            {t('hero_title_1')}
+                        </span>
                         <br />
-                        <span className="relative">
-                            Roommate
-                            <svg className="absolute -bottom-2 left-0 w-full" height="12" viewBox="0 0 200 12" fill="none">
+                        <span className="relative inline-block pb-2 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                            {t('hero_title_2')}
+                            <svg className="absolute -bottom-1 left-0 w-full" height="12" viewBox="0 0 200 12" fill="none">
                                 <path d="M2 10C60 2 140 2 198 10" stroke="url(#gradient)" strokeWidth="3" strokeLinecap="round" />
                                 <defs>
                                     <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -91,38 +95,46 @@ const Landing = () => {
                     </h1>
 
                     <p className="animate-fadeInUp stagger-2 mx-auto mb-10 max-w-2xl text-lg text-gray-600 dark:text-gray-300 md:text-xl">
-                        Connect with compatible roommates based on lifestyle, habits, and preferences.
+                        {t('hero_subtitle1')}
                         <br className="hidden md:block" />
-                        <span className="font-semibold text-indigo-600 dark:text-indigo-400">Safe, secure, and student-friendly.</span>
+                        <span className="font-semibold text-indigo-600 dark:text-indigo-400">{t('hero_subtitle2')}</span>
                     </p>
 
                     <div className="animate-fadeInUp stagger-3 flex flex-col items-center justify-center gap-4 sm:flex-row">
                         <Link to="/listings" className="w-full sm:w-auto">
                             <Button size="lg" className="btn-animate gradient-primary w-full border-0 px-8 py-6 text-lg font-semibold text-white shadow-xl hover:shadow-2xl sm:w-auto">
                                 <Search className="mr-2 h-5 w-5" />
-                                Browse Listings
+                                {t('browse_listings')}
                             </Button>
                         </Link>
-                        <Link to="/signup" className="w-full sm:w-auto">
-                            <Button variant="outline" size="lg" className="w-full border-2 border-indigo-600 px-8 py-6 text-lg font-semibold text-indigo-600 hover:bg-indigo-50 dark:border-indigo-400 dark:text-indigo-400 dark:hover:bg-indigo-950 sm:w-auto">
-                                Create Account
-                            </Button>
-                        </Link>
+                        {!isAuthenticated ? (
+                            <Link to="/signup" className="w-full sm:w-auto">
+                                <Button variant="outline" size="lg" className="w-full border-2 border-indigo-600 px-8 py-6 text-lg font-semibold text-indigo-600 hover:bg-indigo-50 dark:border-indigo-400 dark:text-indigo-400 dark:hover:bg-indigo-950 sm:w-auto">
+                                    {t('create_account')}
+                                </Button>
+                            </Link>
+                        ) : (
+                            <Link to="/dashboard" className="w-full sm:w-auto">
+                                <Button variant="outline" size="lg" className="w-full border-2 border-purple-600 px-8 py-6 text-lg font-semibold text-purple-600 hover:bg-purple-50 dark:border-purple-400 dark:text-purple-400 dark:hover:bg-purple-950 sm:w-auto">
+                                    {t('dashboard')}
+                                </Button>
+                            </Link>
+                        )}
                     </div>
 
                     {/* Stats */}
                     <div className="animate-fadeInUp stagger-4 mt-16 grid grid-cols-3 gap-8">
                         <div className="glass rounded-2xl p-6">
                             <div className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">10K+</div>
-                            <div className="text-sm text-gray-600 dark:text-gray-400">Active Users</div>
+                            <div className="text-sm text-gray-600 dark:text-gray-400">{t('stats_users')}</div>
                         </div>
                         <div className="glass rounded-2xl p-6">
                             <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">5K+</div>
-                            <div className="text-sm text-gray-600 dark:text-gray-400">Successful Matches</div>
+                            <div className="text-sm text-gray-600 dark:text-gray-400">{t('stats_matches')}</div>
                         </div>
                         <div className="glass rounded-2xl p-6">
                             <div className="text-3xl font-bold text-pink-600 dark:text-pink-400">98%</div>
-                            <div className="text-sm text-gray-600 dark:text-gray-400">Satisfaction Rate</div>
+                            <div className="text-sm text-gray-600 dark:text-gray-400">{t('stats_satisfaction')}</div>
                         </div>
                     </div>
                 </div>
@@ -133,10 +145,10 @@ const Landing = () => {
                 <div className="container mx-auto px-4">
                     <div className="mb-16 text-center">
                         <h2 className="mb-4 text-4xl font-bold text-gray-900 dark:text-white">
-                            Why Choose Roommates?
+                            {t('why_choose_us')}
                         </h2>
                         <p className="text-lg text-gray-600 dark:text-gray-400">
-                            Everything you need to find your perfect living situation
+                            {t('everything_you_need')}
                         </p>
                     </div>
 
@@ -171,14 +183,14 @@ const Landing = () => {
 
                 <div className="container relative mx-auto px-4 text-center">
                     <h2 className="mb-6 text-4xl font-bold text-white md:text-5xl">
-                        Ready to Find Your Roommate?
+                        {t('ready_to_find')}
                     </h2>
                     <p className="mb-8 text-xl text-white/90">
-                        Join thousands of students who found their perfect match
+                        {t('join_thousands')}
                     </p>
-                    <Link to="/signup">
+                    <Link to={isAuthenticated ? "/listings" : "/signup"}>
                         <Button size="lg" className="btn-animate bg-white px-8 py-6 text-lg font-semibold text-indigo-600 hover:bg-gray-100">
-                            Get Started Free
+                            {isAuthenticated ? t('browse_listings') : t('get_started_free')}
                         </Button>
                     </Link>
                 </div>
