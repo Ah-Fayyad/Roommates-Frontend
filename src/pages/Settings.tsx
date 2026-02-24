@@ -31,7 +31,8 @@ const Settings = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const [settings, setSettings] = useState({
+  // Initial settings - for Cancel button to restore original values
+  const initialSettings = {
     // Account
     email: user?.email || "",
     fullName: user?.fullName || "",
@@ -54,7 +55,9 @@ const Settings = () => {
     // Preferences
     language: i18n.language,
     theme: theme,
-  });
+  };
+
+  const [settings, setSettings] = useState(initialSettings);
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -62,6 +65,63 @@ const Settings = () => {
     setSuccess("");
 
     try {
+      // Validation
+      // Check if fullName is empty
+      if (!settings.fullName.trim()) {
+        setError("❌ Full name cannot be empty");
+        setIsSaving(false);
+        return;
+      }
+
+      // If password fields are filled, validate them
+      if (
+        settings.newPassword ||
+        settings.currentPassword ||
+        settings.confirmPassword
+      ) {
+        // Check if current password is provided
+        if (!settings.currentPassword.trim()) {
+          setError("❌ Current password is required to change password");
+          setIsSaving(false);
+          return;
+        }
+
+        // Check if new password is provided
+        if (!settings.newPassword.trim()) {
+          setError("❌ New password cannot be empty");
+          setIsSaving(false);
+          return;
+        }
+
+        // Check if passwords match
+        if (settings.newPassword !== settings.confirmPassword) {
+          setError("❌ New passwords do not match");
+          setIsSaving(false);
+          return;
+        }
+
+        // Check minimum password length
+        if (settings.newPassword.length < 8) {
+          setError("❌ Password must be at least 8 characters long");
+          setIsSaving(false);
+          return;
+        }
+
+        // Check if new password is same as current
+        if (settings.newPassword === settings.currentPassword) {
+          setError("❌ New password must be different from current password");
+          setIsSaving(false);
+          return;
+        }
+      }
+
+      console.log("📤 Saving settings...", {
+        email: settings.email,
+        fullName: settings.fullName,
+        phoneNumber: settings.phoneNumber,
+        hasPasswordChange: !!settings.newPassword,
+      });
+
       const response = await axios.put(
         `${API_BASE_URL}/users/settings`,
         settings,
@@ -69,22 +129,32 @@ const Settings = () => {
           headers: { Authorization: `Bearer ${token}` },
         },
       );
-      setSuccess("Settings saved successfully!");
 
-      // Update local storage user if returned
-      // (Depends on if user context re-fetches or manually updates)
-      // Assuming context will handle refresh or we need to update user context manually.
-      // But for now, backend persists it.
+      console.log("✅ Settings saved successfully:", response.data);
+      setSuccess("✅ Settings saved successfully!");
 
-      // Clear password fields after save
+      // Clear password fields
       setSettings({
         ...settings,
         currentPassword: "",
         newPassword: "",
         confirmPassword: "",
       });
+
+      // Auto-hide success message after 3 seconds
+      setTimeout(() => setSuccess(""), 3000);
     } catch (err: any) {
-      setError(err.response?.data?.message || "Failed to save settings");
+      console.error("❌ Save settings error:", {
+        status: err.response?.status,
+        message: err.response?.data?.message,
+        error: err.message,
+      });
+
+      const errorMsg =
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        "Failed to save settings. Please try again.";
+      setError(errorMsg);
     } finally {
       setIsSaving(false);
     }
@@ -109,6 +179,13 @@ const Settings = () => {
         console.error("Account deletion failed", err);
       }
     }
+  };
+
+  const handleCancel = () => {
+    console.log("🔄 Canceling changes - Restoring original settings");
+    setSettings(initialSettings);
+    setError("");
+    setSuccess("");
   };
 
   const toggleLanguage = async () => {
@@ -443,7 +520,7 @@ const Settings = () => {
               </div>
             )}
             <div className="flex justify-end gap-4">
-              <Button variant="outline" size="lg">
+              <Button variant="outline" size="lg" onClick={handleCancel}>
                 Cancel
               </Button>
               <Button
