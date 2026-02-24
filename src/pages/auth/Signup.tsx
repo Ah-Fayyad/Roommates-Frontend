@@ -58,6 +58,7 @@ const Signup = () => {
     studyHabits: 5,
     quietHours: 5,
     socializing: 5,
+    cooking: 5,
     pets: false,
     smoking: false,
     guests: true,
@@ -139,7 +140,15 @@ const Signup = () => {
         navigate("/dashboard");
       }
     } catch (err: any) {
-      const errMsg = err.response?.data?.message || t('failed_create_account');
+      console.error("🔴 Signup error details:", {
+        status: err.response?.status,
+        message: err.response?.data?.message,
+        error: err.response?.data?.error,
+        debug: err.response?.data?.debug,
+        fullError: err.message,
+      });
+      
+      const errMsg = err.response?.data?.message || err.response?.data?.error || err.message || t('failed_create_account');
       setError(errMsg);
       addToast(errMsg, "error");
     }

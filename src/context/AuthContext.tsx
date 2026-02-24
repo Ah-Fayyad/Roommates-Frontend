@@ -105,21 +105,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     preferences?: any,
   ) => {
     try {
+      console.log("🔐 Starting registration...", { email, fullName, role });
+      
       const response = await axiosInstance.post("/auth/signup", {
         email,
         password,
         fullName,
         role,
-        phoneNumber,
-        university,
-        bio,
-        preferences,
+        phoneNumber: phoneNumber || "",
+        university: university || "",
+        bio: bio || "",
+        preferences: preferences || {},
       });
 
+      console.log("✅ Registration successful", response.data);
       const { token: newToken, user: newUser } = response.data;
       login(newToken, newUser);
-    } catch (error) {
-      console.error("Registration failed", error);
+    } catch (error: any) {
+      console.error("❌ Registration failed:", {
+        message: error.message,
+        status: error.response?.status,
+        data: error.response?.data,
+        config: error.config?.url,
+      });
       throw error;
     }
   };
