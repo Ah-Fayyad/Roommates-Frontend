@@ -207,7 +207,7 @@ const Matches = () => {
                             {t('no_matches_yet')}
                         </h3>
                         <p className="mb-6 text-gray-600 dark:text-gray-400">
-                            {t('complete_profile_desc')}
+                            {t('complete_profile_desc_matches')}
                         </p>
                         <Link to="/profile">
                             <Button variant="gradient">

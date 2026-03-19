@@ -13,7 +13,7 @@ const ContentEditor = () => {
 
     const handleSave = () => {
         // In a real app, save to backend
-        alert('Content saved successfully!');
+        alert(t('action_success', { action: t('save_changes') }));
     };
 
     return (

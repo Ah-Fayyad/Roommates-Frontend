@@ -14,7 +14,11 @@ import {
     AlertTriangle,
     CheckCircle,
     XCircle,
-    Search
+    Search,
+    Activity,
+    FileText,
+    ChevronRight,
+    Sparkles
 } from 'lucide-react';
 
 interface DashboardStats {
@@ -102,135 +106,138 @@ const Dashboard = () => {
     }
 
     return (
-        <div className="space-y-6">
-            {/* Header */}
-            <div>
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('admin_dashboard')}</h1>
-                <p className="text-gray-600 dark:text-gray-400">{t('platform_health')}</p>
+        <div className="space-y-8 pb-12">
+            {/* Page Title & Welcome */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="animate-slideInLeft">
+                    <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">
+                        {t('welcome_back')}, <span className="text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text">{user?.fullName || 'Admin'}</span>
+                    </h1>
+                    <p className="text-gray-500 font-medium mt-1 flex items-center gap-2">
+                        <Activity size={14} className="text-indigo-500 animate-pulse" />
+                        {t('platform_summary_desc')}
+                    </p>
+                </div>
+                <div className="flex items-center gap-3 animate-slideInRight">
+                    <Button variant="outline" className="rounded-xl border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 font-bold text-xs uppercase tracking-wider">
+                        <FileText size={14} className="me-2" />
+                        {t('export_data')}
+                    </Button>
+                    <Link to="/admin/reports">
+                        <Button className="rounded-xl gradient-primary font-bold text-xs uppercase tracking-wider shadow-lg shadow-indigo-500/20">
+                            {t('view_all_reports')}
+                        </Button>
+                    </Link>
+                </div>
             </div>
 
-            {/* Stats Grid */}
+            {/* Premium Stats Grid */}
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                 {statsCards.map((stat, index) => {
                     const Icon = stat.icon;
                     return (
                         <div
                             key={index}
-                            className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+                            className="group relative overflow-hidden rounded-3xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
                         >
-                            <div className="mb-4 flex items-center justify-between">
-                                <div className={`flex h-12 w-12 items-center justify-center rounded-xl bg-${stat.color}-50 text-${stat.color}-600 dark:bg-${stat.color}-900/30 dark:text-${stat.color}-400`}>
-                                    <Icon className="h-6 w-6" />
+                            <div className={`absolute top-0 end-0 h-24 w-24 -me-8 -mt-8 rounded-full bg-${stat.color}-500/5 blur-2xl group-hover:bg-${stat.color}-500/10 transition-colors`}></div>
+
+                            <div className="flex items-start justify-between relative">
+                                <div className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-${stat.color}-50 dark:bg-${stat.color}-900/20 text-${stat.color}-600 dark:text-${stat.color}-400 shadow-inner group-hover:scale-110 transition-transform duration-500`}>
+                                    <Icon className="h-7 w-7" />
                                 </div>
-                                <span className="text-sm font-semibold text-green-600 dark:text-green-400">
-                                    {stat.change}
-                                </span>
+                                <div className="flex flex-col items-end">
+                                    <span className="flex items-center gap-1 text-xs font-black text-green-500 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-lg">
+                                        <TrendingUp size={12} />
+                                        {stat.change}
+                                    </span>
+                                </div>
                             </div>
-                            <div className="text-3xl font-bold text-gray-900 dark:text-white">
-                                {(stat.value || 0).toLocaleString()}
+
+                            <div className="mt-6 relative">
+                                <div className="text-4xl font-black text-gray-900 dark:text-white tracking-tighter">
+                                    {(stat.value || 0).toLocaleString()}
+                                </div>
+                                <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">
+                                    {stat.label}
+                                </div>
                             </div>
-                            <div className="text-sm text-gray-600 dark:text-gray-400">
-                                {stat.label}
+
+                            <div className="mt-4 h-1.5 w-full bg-gray-50 dark:bg-gray-800 rounded-full overflow-hidden">
+                                <div className={`h-full bg-${stat.color}-500 rounded-full w-[70%] group-hover:w-[85%] transition-all duration-1000 ease-out`}></div>
                             </div>
                         </div>
                     );
                 })}
             </div>
 
-            {/* Tabs */}
-            <div className="rounded-xl border border-gray-200 bg-white p-2 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                <div className="flex gap-2 overflow-x-auto">
-                    {[
-                        { id: 'overview', label: t('overview'), icon: TrendingUp },
-                        { id: 'activity', label: t('recent_activity'), icon: Shield },
-                        { id: 'actions', label: t('quick_actions'), icon: AlertTriangle }
-                    ].map((tab) => {
-                        const Icon = tab.icon;
-                        return (
-                            <button
-                                key={tab.id}
-                                onClick={() => setActiveTab(tab.id)}
-                                className={`flex items-center gap-2 rounded-xl px-4 py-2 font-semibold transition-all ${activeTab === tab.id
-                                    ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg'
-                                    : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700'
-                                    }`}
-                            >
-                                <Icon className="h-5 w-5" />
-                                {tab.label}
-                            </button>
-                        );
-                    })}
-                </div>
-            </div>
+            {/* Platform Command Center */}
+            <div className="grid gap-8 lg:grid-cols-3">
+                <div className="lg:col-span-2 space-y-6">
+                    <div className="rounded-3xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-8 shadow-sm">
+                        <div className="flex items-center justify-between mb-8">
+                            <div>
+                                <h3 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">
+                                    {t('global_pulse')}
+                                </h3>
+                                <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">{t('live_platform_metrics')}</p>
+                            </div>
+                        </div>
 
-            {/* Content */}
-            {activeTab === 'overview' && (
-                <div className="grid gap-6 lg:grid-cols-2">
-                    <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                        <h3 className="mb-4 text-xl font-bold text-gray-900 dark:text-white">
-                            {t('platform_health')}
-                        </h3>
-                        <div className="space-y-3">
-                            <div className="flex items-center justify-between rounded-lg bg-green-50 p-3 dark:bg-green-900/20">
-                                <div className="flex items-center gap-2">
-                                    <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
-                                    <span className="font-medium text-gray-900 dark:text-white">{t('system_status')}</span>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="p-6 rounded-2xl bg-indigo-50/50 dark:bg-indigo-900/10 border border-indigo-100/50 dark:border-indigo-800/30">
+                                <p className="text-xs font-bold text-gray-500 uppercase mb-1">{t('server_load')}</p>
+                                <div className="flex items-end gap-2">
+                                    <span className="text-2xl font-black text-gray-900 dark:text-white">24%</span>
+                                    <span className="text-[10px] font-bold text-green-500 mb-1">-2%</span>
                                 </div>
-                                <span className="text-sm font-semibold text-green-600 dark:text-green-400">{t('healthy')}</span>
                             </div>
-                            <div className="flex items-center justify-between rounded-lg bg-blue-50 p-3 dark:bg-blue-900/20">
-                                <div className="flex items-center gap-2">
-                                    <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                                    <span className="font-medium text-gray-900 dark:text-white">{t('active_users')}</span>
+                            <div className="p-6 rounded-2xl bg-purple-50/50 dark:bg-purple-900/10 border border-purple-100/50 dark:border-purple-800/30">
+                                <p className="text-xs font-bold text-gray-500 uppercase mb-1">{t('api_latency')}</p>
+                                <div className="flex items-end gap-2">
+                                    <span className="text-2xl font-black text-gray-900 dark:text-white">142ms</span>
+                                <span className="text-[10px] font-bold text-green-500 mb-1">{t('optimal')}</span>
                                 </div>
-                                <span className="text-sm font-semibold text-blue-600 dark:text-blue-400">{stats.totalUsers}</span>
                             </div>
-                            <div className="flex items-center justify-between rounded-lg bg-purple-50 p-3 dark:bg-purple-900/20">
-                                <div className="flex items-center gap-2">
-                                    <Home className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                                    <span className="font-medium text-gray-900 dark:text-white">{t('total_listings')}</span>
+                        </div>
+
+                        <div className="mt-8 space-y-4">
+                            <div className="flex items-center justify-between p-4 rounded-2xl bg-gray-50 dark:bg-gray-800/50 border border-transparent hover:border-orange-100 dark:hover:border-orange-900/30 transition-all group">
+                                <div className="flex items-center gap-4">
+                                    <div className="h-10 w-10 rounded-xl bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-600">
+                                        <AlertTriangle size={20} />
+                                    </div>
+                                    <p className="text-sm font-black text-gray-900 dark:text-white">{t('pending_reports')}</p>
                                 </div>
-                                <span className="text-sm font-semibold text-purple-600 dark:text-purple-400">{stats.activeListings}</span>
+                                <span className="text-lg font-black text-orange-600 group-hover:scale-110 transition-transform">04</span>
+                            </div>
+
+                            <div className="flex items-center justify-between p-4 rounded-2xl bg-gray-50 dark:bg-gray-800/50 border border-transparent hover:border-green-100 dark:hover:border-green-900/30 transition-all group">
+                                <div className="flex items-center gap-4">
+                                    <div className="h-10 w-10 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600">
+                                        <CheckCircle size={20} />
+                                    </div>
+                                    <p className="text-sm font-black text-gray-900 dark:text-white">{t('verified_listings')}</p>
+                                </div>
+                                <span className="text-lg font-black text-green-600 group-hover:scale-110 transition-transform">12</span>
                             </div>
                         </div>
                     </div>
 
-                    <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                        <h3 className="mb-4 text-xl font-bold text-gray-900 dark:text-white">
-                            {t('todays_activity')}
-                        </h3>
-                        <div className="space-y-3">
-                            <div className="flex items-center justify-between">
-                                <span className="text-gray-600 dark:text-gray-400">{t('new_registrations')}</span>
-                                <span className="font-bold text-gray-900 dark:text-white">12</span>
+                    {/* Audit Logs */}
+                    <div className="rounded-3xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-8 shadow-sm">
+                        <div className="flex items-center justify-between mb-8">
+                            <div>
+                                <h3 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">
+                                    {t('audit_logs')}
+                                </h3>
+                                <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">{t('latest_admin_decisions')}</p>
                             </div>
-                            <div className="flex items-center justify-between">
-                                <span className="text-gray-600 dark:text-gray-400">{t('new_listings')}</span>
-                                <span className="font-bold text-gray-900 dark:text-white">8</span>
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <span className="text-gray-600 dark:text-gray-400">{t('messages_sent')}</span>
-                                <span className="font-bold text-gray-900 dark:text-white">{stats.messagesCount}</span>
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <span className="text-gray-600 dark:text-gray-400">{t('matches_created')}</span>
-                                <span className="font-bold text-gray-900 dark:text-white">{stats.matchesCount}</span>
-                            </div>
+                            <button className="text-indigo-600 font-black text-xs uppercase tracking-widest hover:underline decoration-2 underline-offset-4">{t('view_all')}</button>
                         </div>
-                    </div>
-                </div>
-            )}
 
-            {activeTab === 'activity' && (
-                <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                    <h3 className="mb-4 text-xl font-bold text-gray-900 dark:text-white">
-                        {t('recent_activity')}
-                    </h3>
-                    <div className="space-y-3">
-                        {activities.length === 0 ? (
-                            <p className="text-gray-500">{t('no_activity')}</p>
-                        ) : (
-                            activities.map((activity, idx) => {
+                        <div className="space-y-4">
+                            {activities.slice(0, 5).map((activity, idx) => {
                                 const actionType = activity.actionType || '';
                                 const isBan = actionType.includes('BAN');
                                 const isApprove = actionType.includes('APPROVE');
@@ -238,59 +245,68 @@ const Dashboard = () => {
                                 const color = isBan ? 'red' : isApprove ? 'green' : 'indigo';
 
                                 return (
-                                    <div key={idx} className="flex items-center gap-3 rounded-xl bg-gray-50 p-3 dark:bg-gray-700/50">
-                                        <div className={`rounded-lg bg-${color}-100 p-2 text-${color}-600 dark:bg-${color}-900/20 dark:text-${color}-400`}>
-                                            <Icon className="h-5 w-5" />
+                                    <div key={idx} className="flex items-center gap-4 p-4 rounded-2xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-all group">
+                                        <div className={`h-12 w-12 rounded-xl bg-${color}-50 dark:bg-${color}-900/20 text-${color}-600 dark:text-${color}-400 flex items-center justify-center border border-${color}-100 dark:border-${color}-800/50`}>
+                                            <Icon className="h-6 w-6" />
                                         </div>
-                                        <div className="flex-1">
-                                            <div className="font-medium text-gray-900 dark:text-white">
-                                                {actionType.replace(/_/g, ' ')} {t('by')} {activity.admin?.fullName || 'System'}
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2 mb-0.5">
+                                                <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-${color}-100 dark:bg-${color}-900/40 text-${color}-700 dark:text-${color}-300`}>
+                                                    {actionType.replace(/_/g, ' ')}
+                                                </span>
                                             </div>
-                                            <div className="text-xs text-gray-500 dark:text-gray-400">
-                                                Target ID: {activity.targetId} • {new Date(activity.createdAt).toLocaleString()}
-                                            </div>
+                                            <p className="text-sm font-bold text-gray-900 dark:text-white truncate">
+                                                {t('by_label')} <span className="text-indigo-600">{activity.admin?.fullName || t('system')}</span>
+                                            </p>
                                         </div>
+                                        <ChevronRight size={18} className="text-gray-300 rtl:rotate-180" />
                                     </div>
                                 );
-                            })
-                        )}
+                            })}
+                        </div>
                     </div>
                 </div>
-            )}
 
-            {activeTab === 'actions' && (
-                <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                    <h3 className="mb-4 text-xl font-bold text-gray-900 dark:text-white">
-                        {t('quick_actions')}
-                    </h3>
-                    <div className="grid gap-6 md:grid-cols-2">
-                        <Link to="/admin/users">
-                            <Button variant="outline" className="w-full justify-start">
-                                <Users className="mr-2 h-5 w-5" />
-                                {t('manage_users')}
-                            </Button>
-                        </Link>
-                        <Link to="/admin/moderation">
-                            <Button variant="outline" className="w-full justify-start">
-                                <Home className="mr-2 h-5 w-5" />
-                                {t('review_listings')}
-                            </Button>
-                        </Link>
-                        <Link to="/admin/users">
-                            <Button variant="outline" className="w-full justify-start">
-                                <Shield className="mr-2 h-5 w-5" />
-                                {t('process_verifications')}
-                            </Button>
-                        </Link>
-                        <Link to="/admin/reports">
-                            <Button variant="outline" className="w-full justify-start">
-                                <AlertTriangle className="mr-2 h-5 w-5" />
-                                {t('handle_reports')}
-                            </Button>
-                        </Link>
+                {/* Sidebar Column */}
+                <div className="space-y-6">
+                    <div className="rounded-3xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-8 shadow-sm">
+                        <h3 className="text-xl font-black text-gray-900 dark:text-white tracking-tight mb-6">{t('quick_actions')}</h3>
+                        <div className="grid grid-cols-1 gap-3">
+                            <Link to="/admin/users" className="block p-4 rounded-2xl bg-gray-50 dark:bg-gray-800 border border-transparent hover:border-indigo-100 dark:hover:border-indigo-900/30 hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10 transition-all group">
+                                <div className="flex items-center gap-3">
+                                    <Users size={18} className="text-gray-400 group-hover:text-indigo-600" />
+                                    <span className="text-sm font-bold text-gray-700 dark:text-gray-300">{t('manage_users')}</span>
+                                </div>
+                            </Link>
+
+                            <Link to="/admin/moderation" className="block p-4 rounded-2xl bg-gray-50 dark:bg-gray-800 border border-transparent hover:border-purple-100 dark:hover:border-purple-900/30 hover:bg-purple-50/30 dark:hover:bg-purple-900/10 transition-all group">
+                                <div className="flex items-center gap-3">
+                                    <Shield size={18} className="text-gray-400 group-hover:text-purple-600" />
+                                    <span className="text-sm font-bold text-gray-700 dark:text-gray-300">{t('review_listings')}</span>
+                                </div>
+                            </Link>
+
+                            <Link to="/admin/reports" className="block p-4 rounded-2xl bg-gray-50 dark:bg-gray-800 border border-transparent hover:border-red-100 dark:hover:border-red-900/30 hover:bg-red-50/30 dark:hover:bg-red-900/10 transition-all group">
+                                <div className="flex items-center gap-3">
+                                    <AlertTriangle size={18} className="text-gray-400 group-hover:text-red-600" />
+                                    <span className="text-sm font-bold text-gray-700 dark:text-gray-300">{t('handle_reports')}</span>
+                                </div>
+                            </Link>
+                        </div>
+                    </div>
+
+                    <div className="rounded-3xl bg-gradient-to-br from-indigo-600 to-purple-700 p-8 shadow-xl shadow-indigo-600/20 text-white relative overflow-hidden group">
+                        <div className="absolute top-0 end-0 p-4 opacity-10 group-hover:rotate-12 transition-transform duration-700">
+                            <Sparkles size={120} />
+                        </div>
+                        <h4 className="text-lg font-black tracking-tight mb-2">{t('admin_core_title')}</h4>
+                        <p className="text-white/70 text-sm font-medium mb-6">{t('admin_core_desc')}</p>
+                        <Button className="w-full bg-white text-indigo-600 rounded-xl font-bold hover:bg-indigo-50 transition-colors">
+                            {t('whats_new')}
+                        </Button>
                     </div>
                 </div>
-            )}
+            </div>
         </div>
     );
 };

@@ -18,10 +18,16 @@ import {
   X,
   MessageCircle,
   Smile,
+  Flag,
+  Trash2,
+  Edit2,
+  Shield,
+  AlertTriangle,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { socketService } from "../services/socket.service";
 import { useTranslation } from "react-i18next";
+import ReportModal from "../components/ReportModal";
 
 interface Message {
   id: string;
@@ -43,6 +49,7 @@ interface ChatUser {
   lastMessage?: string;
   unreadCount: number;
   lastActiveAt?: string;
+  phoneNumber?: string;
 }
 
 const Chat = () => {
@@ -60,6 +67,8 @@ const Chat = () => {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [showMoreMenu, setShowMoreMenu] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -135,11 +144,12 @@ const Chat = () => {
         return {
           id: chat.id,
           participantId: otherParticipant?.id || "",
-          name: otherParticipant?.fullName || "Unknown User",
+          name: otherParticipant?.fullName || t('unknown_user'),
           avatar: otherParticipant?.avatar || "",
           online: false, // Updated via user_online/offline events or backend if implemented
           lastActiveAt: otherParticipant?.lastActiveAt,
-          lastMessage: chat.messages[0]?.content || "No messages yet",
+          phoneNumber: otherParticipant?.phoneNumber,
+          lastMessage: chat.messages[0]?.content || t('no_messages_yet'),
           unreadCount: 0,
         };
       });
@@ -303,9 +313,9 @@ const Chat = () => {
               <div className="flex items-center gap-3">
                 <div className="relative">
                   <img
-                    src={chat.avatar || `https://i.pravatar.cc/100?u=${chat.id}`}
+                    src={chat.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${chat.participantId}`}
                     alt={chat.name}
-                    className="object-cover w-12 h-12 rounded-full"
+                    className="object-cover w-12 h-12 rounded-full ring-2 ring-indigo-500/20"
                   />
                   {chat.online && (
                     <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full dark:border-gray-800"></div>
@@ -350,9 +360,9 @@ const Chat = () => {
                 <ArrowLeft className="w-5 h-5" />
               </button>
               <img
-                src={activeChat.avatar || "https://via.placeholder.com/100"}
+                src={activeChat.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${activeChat.participantId}`}
                 alt={activeChat.name}
-                className="object-cover w-10 h-10 rounded-full"
+                className="object-cover w-10 h-10 rounded-full ring-2 ring-indigo-500/20"
               />
               <div>
                 <h3 className="font-semibold text-gray-900 dark:text-white">
@@ -372,21 +382,45 @@ const Chat = () => {
                 </p>
               </div>
             </div>
-            <div className="flex gap-2">
-              <Button variant="ghost" size="icon">
+            <div className="flex gap-2 relative">
+              <Button variant="ghost" size="icon" onClick={() => window.location.href = `tel:${activeChat.phoneNumber || ''}`}>
                 <Phone className="w-5 h-5" />
               </Button>
               <Button variant="ghost" size="icon">
                 <Video className="w-5 h-5" />
               </Button>
-              <Button variant="ghost" size="icon">
-                <MoreVertical className="w-5 h-5" />
-              </Button>
+              <div className="relative">
+                <Button variant="ghost" size="icon" onClick={() => setShowMoreMenu(!showMoreMenu)}>
+                  <MoreVertical className="w-5 h-5" />
+                </Button>
+
+                {showMoreMenu && (
+                  <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 py-2 z-50 animate-fadeInUp">
+                    <button
+                      onClick={() => {
+                        setShowReportModal(true);
+                        setShowMoreMenu(false);
+                      }}
+                      className="w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 flex items-center gap-2 transition-colors"
+                    >
+                      <Flag className="w-4 h-4" />
+                      {t('report_user')}
+                    </button>
+                    <button
+                      className="w-full px-4 py-2.5 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2 transition-colors"
+                      onClick={() => setShowMoreMenu(false)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      {t('delete_chat')}
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
           {/* Messages */}
-          <div className="flex-1 p-4 overflow-y-auto bg-gray-50 dark:bg-gray-900/50">
+          <div className="flex-1 p-4 overflow-y-auto bg-gray-50 dark:bg-gray-900/50 scroll-smooth">
             <div className="space-y-4">
               {messages.map((msg) => (
                 <div
@@ -465,7 +499,7 @@ const Chat = () => {
               <div className="mb-4 relative inline-block">
                 <img
                   src={imagePreview}
-                  alt="Preview"
+                  alt={t('preview')}
                   className="h-20 w-20 object-cover rounded-xl border-2 border-indigo-500"
                 />
                 <button
@@ -545,6 +579,14 @@ const Chat = () => {
           </div>
         </div>
       )}
+
+      {/* Report Modal */}
+      <ReportModal
+        isOpen={showReportModal}
+        onClose={() => setShowReportModal(false)}
+        targetId={activeChat?.participantId || ""}
+        targetType="USER"
+      />
     </div>
   );
 };

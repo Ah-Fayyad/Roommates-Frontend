@@ -67,10 +67,10 @@ const Reports = () => {
             await fetchReports();
             setShowDetailModal(false);
             setAdminNotes('');
-            alert(`Action taken successfully: ${action}`);
+            alert(t('action_success', { action }));
         } catch (error) {
             console.error('Action failed', error);
-            alert('Failed to take action on report');
+            alert(t('action_failed'));
         } finally {
             setActionLoading(false);
         }
@@ -176,10 +176,10 @@ const Reports = () => {
                                             {report.reported?.title || t('unknown_listing')}
                                         </p>
                                         <p className="text-gray-600 dark:text-gray-400">
-                                            Owner: {report.reported?.owner?.fullName}
+                                             {t('owner_label')}: {report.reported?.owner?.fullName}
                                         </p>
                                         <p className="text-gray-600 dark:text-gray-400">
-                                            Status: {report.reported?.status}
+                                            {t('status')}: {report.reported?.status}
                                         </p>
                                     </div>
                                 )}
@@ -213,7 +213,7 @@ const Reports = () => {
                                     }}
                                     className="border-indigo-600 text-indigo-600 hover:bg-indigo-50 dark:border-indigo-400 dark:text-indigo-400 dark:hover:bg-indigo-900/20"
                                 >
-                                    <Mail size={16} className="mr-2" />
+                                    <Mail size={16} className="me-2" />
                                     {t('view_details')}
                                 </Button>
                                 {report.targetType === 'USER' && (
@@ -224,7 +224,7 @@ const Reports = () => {
                                             if (report.reported?.isBanned) {
                                                 handleAction(report.id, 'RESOLVED', 'USER');
                                             } else {
-                                                if (window.confirm('Ban this user? This action cannot be undone easily.')) {
+                                                if (window.confirm(t('confirm_ban_user'))) {
                                                     handleAction(report.id, 'BAN_USER', 'USER');
                                                 }
                                             }
@@ -232,7 +232,7 @@ const Reports = () => {
                                         disabled={actionLoading}
                                         className={`${report.reported?.isBanned ? 'text-green-600 border-green-600 hover:bg-green-50 dark:border-green-400 dark:text-green-400 dark:hover:bg-green-900/20' : 'text-red-600 border-red-200 hover:bg-red-50 dark:border-red-400 dark:text-red-400 dark:hover:bg-red-900/20'}`}
                                     >
-                                        <Ban size={16} className="mr-2" />
+                                        <Ban size={16} className="me-2" />
                                         {report.reported?.isBanned ? t('unban') : t('ban')}
                                     </Button>
                                 )}
@@ -241,14 +241,14 @@ const Reports = () => {
                                         variant="outline"
                                         size="sm"
                                         onClick={() => {
-                                            if (window.confirm('Remove this listing? This action cannot be undone easily.')) {
+                                            if (window.confirm(t('confirm_remove_listing'))) {
                                                 handleAction(report.id, 'REMOVE_LISTING', 'LISTING');
                                             }
                                         }}
                                         disabled={actionLoading}
                                         className="text-red-600 border-red-200 hover:bg-red-50 dark:border-red-400 dark:text-red-400 dark:hover:bg-red-900/20"
                                     >
-                                        <Trash2 size={16} className="mr-2" />
+                                        <Trash2 size={16} className="me-2" />
                                         {t('delete_listing')}
                                     </Button>
                                 )}
@@ -259,7 +259,7 @@ const Reports = () => {
                                     disabled={actionLoading}
                                     className="text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
                                 >
-                                    <XCircle size={16} className="mr-2" />
+                                    <XCircle size={16} className="me-2" />
                                     {t('dismiss')}
                                 </Button>
                             </div>
@@ -302,7 +302,7 @@ const Reports = () => {
                                 <textarea
                                     value={adminNotes}
                                     onChange={(e) => setAdminNotes(e.target.value)}
-                                    placeholder="Add notes about your decision..."
+                                    placeholder={t('admin_notes_placeholder')}
                                     className="w-full p-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                                     rows={4}
                                 />
@@ -315,14 +315,14 @@ const Reports = () => {
                                 onClick={() => setShowDetailModal(false)}
                                 disabled={actionLoading}
                             >
-                                Cancel
+                                {t('cancel')}
                             </Button>
                             <Button
                                 variant="gradient"
                                 onClick={() => handleAction(selectedReport.id, 'RESOLVED', selectedReport.targetType)}
                                 disabled={actionLoading}
                             >
-                                {actionLoading ? 'Saving...' : 'Mark as Resolved'}
+                                {actionLoading ? t('saving') : t('mark_resolved')}
                             </Button>
                         </div>
                     </div>

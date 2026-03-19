@@ -14,7 +14,7 @@ const AdminSettings = () => {
     });
 
     const handleSave = () => {
-        alert('Admin settings saved successfully!');
+        alert(t('action_success', { action: t('save_all_settings') }));
     };
 
     return (

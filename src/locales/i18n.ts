@@ -3,8 +3,8 @@ import { initReactI18next } from "react-i18next";
 import en from "./en.json";
 import ar from "./ar.json";
 
-// Get saved language from localStorage or default to 'en'
-const savedLanguage = localStorage.getItem("language") || "en";
+// Get saved language from localStorage or default to 'ar'
+const savedLanguage = localStorage.getItem("language") || "ar";
 
 i18n.use(initReactI18next).init({
   resources: {
@@ -12,7 +12,7 @@ i18n.use(initReactI18next).init({
     ar: { translation: ar },
   },
   lng: savedLanguage,
-  fallbackLng: "en",
+  fallbackLng: "ar",
   interpolation: {
     escapeValue: false,
   },

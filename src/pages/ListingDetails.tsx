@@ -23,6 +23,11 @@ import {
   Flag,
   Trash2,
   Edit2,
+  Shield,
+  ShieldCheck,
+  Copy,
+  AlertCircle,
+  AlertTriangle,
 } from "lucide-react";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
@@ -36,7 +41,8 @@ const ListingDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user, token } = useAuth();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isArabic = i18n.language === "ar";
   const [listing, setListing] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -125,7 +131,7 @@ const ListingDetails = () => {
   const handleShare = async () => {
     const shareData = {
       title: listing.title,
-      text: `Check out this listing on Roommates: ${listing.title}`,
+      text: t('check_this_listing') + `: ${listing.title}`,
       url: window.location.href,
     };
 
@@ -274,6 +280,9 @@ const ListingDetails = () => {
               src={images[currentImageIndex]}
               alt={listing.title}
               className="object-cover w-full h-full"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800";
+              }}
             />
 
             {/* Navigation Arrows */}
@@ -389,7 +398,7 @@ const ListingDetails = () => {
                 >
                   <img
                     src={image}
-                    alt={`Thumbnail ${index + 1}`}
+                    alt={`${t('thumbnail')} ${index + 1}`}
                     className="object-cover w-full h-full"
                   />
                 </button>
@@ -418,7 +427,7 @@ const ListingDetails = () => {
                     <span className="text-base font-normal text-gray-500">
                       {t('egp')}
                     </span>
-                    {listing.price.toLocaleString('ar-EG')}
+                    {listing.price.toLocaleString(isArabic ? 'ar-EG' : 'en-US')}
                   </div>
                   <div className="text-sm text-gray-600 dark:text-gray-400">
                     {t('per_month')}
@@ -527,7 +536,7 @@ const ListingDetails = () => {
                       <img
                         src={
                           listing.owner?.avatar ||
-                          `https://ui-avatars.com/api/?name=${encodeURIComponent(listing.owner?.fullName || "User")}&background=random`
+                          `https://ui-avatars.com/api/?name=${encodeURIComponent(listing.owner?.fullName || t('owner_label'))}&background=random`
                         }
                         alt={listing.owner?.fullName}
                         className="object-cover w-14 h-14 rounded-full border-2 border-white dark:border-gray-800 shadow-sm"
@@ -561,46 +570,52 @@ const ListingDetails = () => {
                     </div>
                   </div>
 
-                  <div className="space-y-3">
-                    {/* Primary Contact Action */}
-                    <Button
-                      variant="gradient"
-                      className="w-full shadow-lg shadow-indigo-500/20 py-6"
-                      onClick={async () => {
-                        if (!token) {
-                          navigate("/login");
-                          return;
-                        }
-                        try {
-                          const response = await axios.post(
-                            `${API_BASE_URL}/chats`,
-                            { participantId: listing.owner.id },
-                            { headers: { Authorization: `Bearer ${token}` } }
-                          );
-                          navigate(`/chat/${response.data.id}`);
-                        } catch (error) {
-                          console.error("Failed to start chat", error);
-                        }
-                      }}
-                    >
-                      <MessageCircle className="w-5 h-5 mr-2" />
-                      {t('message_internally')}
-                    </Button>
+                  <div className="space-y-4">
+                    {/* Messaging & Visit Actions */}
+                    <div className="grid grid-cols-1 gap-3">
+                      <Button
+                        variant="gradient"
+                        className="w-full shadow-lg shadow-indigo-500/20 py-7 rounded-2xl flex items-center justify-center gap-2 group"
+                        onClick={async () => {
+                          if (!token) {
+                            navigate("/login");
+                            return;
+                          }
+                          try {
+                            const response = await axios.post(
+                              `${API_BASE_URL}/chats`,
+                              { participantId: listing.owner.id },
+                              { headers: { Authorization: `Bearer ${token}` } }
+                            );
+                            navigate(`/chat/${response.data.id}`);
+                          } catch (error) {
+                            console.error("Failed to start chat", error);
+                          }
+                        }}
+                      >
+                        <MessageCircle className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                        <span className="font-bold">{t('message_internally')}</span>
+                      </Button>
 
-                    <Button
-                      variant="outline"
-                      className="w-full py-6"
-                      onClick={() => setShowVisitModal(true)}
-                    >
-                      <Calendar className="w-5 h-5 mr-2 text-indigo-500" />
-                      {t('request_visit')}
-                    </Button>
+                      <Button
+                        variant="outline"
+                        className="w-full py-7 rounded-2xl border-2 border-indigo-100 dark:border-indigo-900/30 hover:bg-indigo-50 dark:hover:bg-indigo-900/10 transition-all flex items-center justify-center gap-2 group"
+                        onClick={() => setShowVisitModal(true)}
+                      >
+                        <Calendar className="w-5 h-5 text-indigo-500 group-hover:rotate-12 transition-transform" />
+                        <span className="font-bold text-gray-700 dark:text-gray-200">{t('request_visit')}</span>
+                      </Button>
+                    </div>
 
-                    <div className="pt-2">
+                    {/* Contact Information Section - Professional Redesign */}
+                    <div className="mt-6 pt-4 border-t border-gray-100 dark:border-gray-800">
+                      <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <Phone className="w-3 h-3" />
+                        {t('contact_information')}
+                      </h4>
+
                       {!showPhone ? (
-                        <Button
-                          variant="ghost"
-                          className="w-full text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800"
+                        <button
                           onClick={() => {
                             if (!token) {
                               navigate("/login");
@@ -608,44 +623,77 @@ const ListingDetails = () => {
                             }
                             setShowPhone(true);
                           }}
+                          className="w-full group p-4 bg-gray-50 dark:bg-gray-800/40 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700 transition-all duration-300 flex items-center justify-between"
                         >
-                          <Phone className="w-4 h-4 mr-2" />
-                          {t('show_contact_info')}
-                        </Button>
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-white dark:bg-gray-800 shadow-sm flex items-center justify-center text-indigo-600 group-hover:scale-110 transition-transform">
+                              <ShieldCheck className="w-5 h-5" />
+                            </div>
+                            <div className="text-left">
+                              <p className="text-sm font-bold text-gray-900 dark:text-white">{t('show_contact_info')}</p>
+                              <p className="text-[10px] text-gray-500">{t('verified_landlords_benefit', 'Encrypted & Secure')}</p>
+                            </div>
+                          </div>
+                          <div className="text-indigo-600 font-bold text-xs group-hover:translate-x-1 transition-transform rtl:group-hover:-translate-x-1">
+                            {t('show')} →
+                          </div>
+                        </button>
                       ) : (
-                        <div className="space-y-3 animate-fadeIn">
+                        <div className="space-y-4 animate-scaleIn">
                           {listing.owner?.phoneNumber ? (
-                            <>
-                              <div className="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-800">
-                                <p className="text-[10px] uppercase tracking-wider text-gray-500 mb-1">
-                                  {t('phone_number')}
-                                </p>
-                                <p className="font-bold text-gray-900 dark:text-white" dir="ltr">
-                                  {listing.owner.phoneNumber}
-                                </p>
+                            <div className="p-5 glass-heavy rounded-2xl border border-indigo-100 dark:border-indigo-900/30 overflow-hidden relative">
+                              {/* Background Accent */}
+                              <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/5 blur-2xl rounded-full -mr-10 -mt-10"></div>
+
+                              <div className="flex items-start justify-between mb-4">
+                                <div>
+                                  <p className="text-[10px] font-black uppercase tracking-tighter text-indigo-500 mb-1">
+                                    {t('direct_contact')}
+                                  </p>
+                                  <div className="flex items-center gap-2">
+                                    <p className="text-xl font-black text-gray-900 dark:text-white tracking-tight" dir="ltr">
+                                      {listing.owner.phoneNumber}
+                                    </p>
+                                    <button
+                                      onClick={() => {
+                                        navigator.clipboard.writeText(listing.owner.phoneNumber);
+                                        alert(t('link_copied'));
+                                      }}
+                                      className="p-1.5 text-gray-400 hover:text-indigo-600 transition-colors"
+                                      title={t('copy_number')}
+                                    >
+                                      <Copy className="w-3.5 h-3.5" />
+                                    </button>
+                                  </div>
+                                </div>
+                                <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center">
+                                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                                </div>
                               </div>
-                              <div className="grid grid-cols-2 gap-2">
+
+                              <div className="grid grid-cols-2 gap-3">
                                 <a
                                   href={`tel:${listing.owner.phoneNumber}`}
-                                  className="flex items-center justify-center gap-2 px-3 py-2 bg-indigo-50 text-indigo-600 rounded-lg text-sm font-semibold hover:bg-indigo-100 transition-colors"
+                                  className="flex items-center justify-center gap-2 py-3 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-600/20 active:scale-95 transition-all"
                                 >
-                                  <Phone className="w-4 h-4" />
+                                  <Phone className="w-4 h-4 fill-current" />
                                   {t('call')}
                                 </a>
                                 <a
                                   href={`https://wa.me/${listing.owner.phoneNumber.replace(/^0/, "20").replace(/[^0-9]/g, "")}`}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="flex items-center justify-center gap-2 px-3 py-2 bg-green-50 text-green-600 rounded-lg text-sm font-semibold hover:bg-green-100 transition-colors"
+                                  className="flex items-center justify-center gap-2 py-3 bg-green-500 text-white rounded-xl text-sm font-bold hover:bg-green-600 shadow-lg shadow-green-500/20 active:scale-95 transition-all"
                                 >
-                                  <MessageCircle className="w-4 h-4" />
+                                  <MessageCircle className="w-4 h-4 fill-current" />
                                   {t('whatsapp')}
                                 </a>
                               </div>
-                            </>
+                            </div>
                           ) : (
-                            <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl border border-yellow-100 dark:border-yellow-900/30 text-center">
-                              <p className="text-xs text-yellow-800 dark:text-yellow-200">
+                            <div className="p-4 bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30 rounded-2xl flex items-center gap-3">
+                              <AlertCircle className="w-5 h-5 text-amber-500 flex-shrink-0" />
+                              <p className="text-xs text-amber-800 dark:text-amber-200">
                                 {t('phone_not_provided_landlord')}
                               </p>
                             </div>
@@ -655,19 +703,31 @@ const ListingDetails = () => {
                     </div>
                   </div>
 
-                  <div className="mt-6 pt-4 border-t border-gray-100 dark:border-gray-800">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="w-full text-gray-400 hover:text-red-500"
-                      onClick={() => {
-                        setReportTarget("LISTING");
-                        setShowReportModal(true);
-                      }}
-                    >
-                      <Flag className="w-4 h-4 mr-2" />
-                      {t('report_listing_detailed')}
-                    </Button>
+                  <div className="mt-8 pt-6 border-t border-gray-100 dark:border-gray-800/50">
+                    {/* Report Card - Prominent & Visible */}
+                    <div className="rounded-2xl border-2 border-red-100 dark:border-red-900/30 bg-red-50/50 dark:bg-red-900/10 p-4 mb-3">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-100 dark:bg-red-900/30">
+                          <Flag className="w-5 h-5 text-red-500" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-gray-900 dark:text-white">{t('safety_center')}</p>
+                          <p className="text-[10px] text-gray-500 dark:text-gray-400">{t('safety_note')}</p>
+                        </div>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full flex items-center justify-center gap-2 py-3 border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/20 transition-all rounded-xl font-bold"
+                        onClick={() => {
+                          setReportTarget("LISTING");
+                          setShowReportModal(true);
+                        }}
+                      >
+                        <Flag className="w-4 h-4" />
+                        <span>{t('report_listing_detailed')}</span>
+                      </Button>
+                    </div>
                   </div>
                 </>
               ) : (
@@ -783,7 +843,7 @@ const ListingDetails = () => {
           <div className="w-full max-w-md p-6 glass rounded-2xl animate-fadeInUp">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                {t('contact')} {listing.owner?.fullName || "Owner"}
+                {t('contact')} {listing.owner?.fullName || t('owner_label')}
               </h3>
               <button
                 onClick={() => setShowContactModal(false)}
@@ -885,7 +945,7 @@ const ListingDetails = () => {
                 onClick={() => setDeleteConfirm(false)}
                 disabled={deleting}
               >
-                Cancel
+                {t('cancel')}
               </Button>
               <Button
                 variant="gradient"

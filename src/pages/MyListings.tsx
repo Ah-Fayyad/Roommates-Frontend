@@ -2,12 +2,14 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
+import { useTranslation } from "react-i18next";
 import { API_BASE_URL } from "../config/constants";
 import { Button } from "../components/ui/Button";
 import { Home, Edit2, Trash2, Eye, PlusCircle, MapPin } from "lucide-react";
 
 const MyListings = () => {
   const { token } = useAuth();
+  const { t } = useTranslation();
   const [listings, setListings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
@@ -27,7 +29,7 @@ const MyListings = () => {
       setListings(response.data);
     } catch (error) {
       console.error("Failed to fetch listings", error);
-      setError("Failed to load listings");
+      setError(t("failed_load_listings"));
     } finally {
       setLoading(false);
     }
@@ -50,13 +52,13 @@ const MyListings = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       setListings(listings.filter((l) => l.id !== deleteConfirm.id));
-      setSuccess(`"${deleteConfirm.title}" has been deleted successfully`);
+      setSuccess(t("listing_deleted_success"));
       setDeleteConfirm(null);
 
       setTimeout(() => setSuccess(null), 3000);
     } catch (error: any) {
       console.error("Failed to delete listing", error);
-      setError(error.response?.data?.message || "Failed to delete listing");
+      setError(error.response?.data?.message || t("failed_delete_listing"));
       setDeleteConfirm(null);
     } finally {
       setDeleting(null);
@@ -66,7 +68,7 @@ const MyListings = () => {
   if (loading)
     return (
       <div className="flex h-screen items-center justify-center">
-        Loading...
+        {t("loading")}
       </div>
     );
 
@@ -109,14 +111,10 @@ const MyListings = () => {
             <div className="glass rounded-2xl p-6 max-w-sm w-full mx-4 shadow-2xl animate-fadeInUp">
               <div className="mb-6">
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                  Delete Listing?
+                  {t("delete_listing_title")}
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400">
-                  Are you sure you want to delete{" "}
-                  <span className="font-semibold text-gray-900 dark:text-white">
-                    "{deleteConfirm.title}"
-                  </span>
-                  ? This action cannot be undone.
+                  {t("delete_listing_confirm", { title: deleteConfirm.title })}
                 </p>
               </div>
               <div className="flex gap-3">
@@ -126,7 +124,7 @@ const MyListings = () => {
                   onClick={() => setDeleteConfirm(null)}
                   disabled={deleting === deleteConfirm.id}
                 >
-                  Cancel
+                  {t("cancel")}
                 </Button>
                 <Button
                   variant="gradient"
@@ -137,12 +135,12 @@ const MyListings = () => {
                   {deleting === deleteConfirm.id ? (
                     <div className="flex items-center gap-2">
                       <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"></div>
-                      Deleting...
+                      {t("deleting")}
                     </div>
                   ) : (
                     <>
                       <Trash2 className="mr-2 h-4 w-4" />
-                      Delete
+                      {t("delete")}
                     </>
                   )}
                 </Button>
@@ -154,16 +152,16 @@ const MyListings = () => {
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between animate-fadeInUp">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              My Properties
+              {t("my_listings_title")}
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
-              Manage and track your listed rooms
+              {t("my_listings_desc")}
             </p>
           </div>
           <Link to="/listings/create">
             <Button variant="gradient" size="lg">
               <PlusCircle className="mr-2 h-5 w-5" />
-              Add New Listing
+              {t("add_new_listing")}
             </Button>
           </Link>
         </div>
@@ -174,14 +172,13 @@ const MyListings = () => {
               <Home className="h-10 w-10 text-gray-400" />
             </div>
             <h3 className="mb-2 text-xl font-bold text-gray-900 dark:text-white">
-              No listings found
+              {t("no_listings_yet")}
             </h3>
             <p className="mb-6 text-gray-600 dark:text-gray-400 max-w-xs">
-              You haven't posted any rooms yet. Start earning by posting your
-              first room!
+              {t("no_listings_yet_desc")}
             </p>
             <Link to="/listings/create">
-              <Button variant="outline">Post Your First Listing</Button>
+              <Button variant="outline">{t("post_first_listing")}</Button>
             </Link>
           </div>
         ) : (
@@ -207,7 +204,7 @@ const MyListings = () => {
                         : "bg-yellow-500/90 text-white border-yellow-400"
                     }`}
                   >
-                    {listing.status}
+                    {listing.status === "ACTIVE" ? t("status_active") : t("status_inactive")}
                   </div>
                 </div>
                 <div className="flex flex-1 flex-col p-6">
@@ -216,7 +213,7 @@ const MyListings = () => {
                       {listing.title}
                     </h3>
                     <span className="text-indigo-600 font-bold">
-                      {listing.price} EGP
+                      {listing.price} {t("egp")}
                     </span>
                   </div>
                   <div className="mb-6 flex items-center gap-2 text-sm text-gray-500">
@@ -226,7 +223,7 @@ const MyListings = () => {
                   <div className="mt-auto flex items-center gap-2 pt-4 border-t dark:border-gray-700">
                     <Link to={`/listings/${listing.id}`} className="flex-1">
                       <Button variant="ghost" size="sm" className="w-full">
-                        <Eye className="mr-1 h-4 w-4" /> View
+                        <Eye className="mr-1 h-4 w-4" /> {t("view")}
                       </Button>
                     </Link>
                     <Link to={`/listings/edit/${listing.id}`}>

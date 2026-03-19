@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
 import { Search, Shield, Users, Heart, Sparkles, Home, MessageCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -7,7 +7,14 @@ import { useTranslation } from 'react-i18next';
 
 const Landing = () => {
     const { t } = useTranslation();
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, user } = useAuth();
+    const navigate = useNavigate();
+
+    React.useEffect(() => {
+        if (isAuthenticated && user?.role === 'ADMIN') {
+            navigate('/admin');
+        }
+    }, [isAuthenticated, user, navigate]);
 
     const features = [
         {
@@ -61,8 +68,8 @@ const Landing = () => {
                 {/* Animated background */}
                 <div className="absolute inset-0 -z-10">
                     <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-950 dark:via-purple-950 dark:to-pink-950"></div>
-                    <div className="absolute left-1/4 top-20 h-96 w-96 animate-float rounded-full bg-indigo-300/30 blur-3xl dark:bg-indigo-600/20"></div>
-                    <div className="absolute right-1/4 top-40 h-96 w-96 animate-float rounded-full bg-pink-300/30 blur-3xl dark:bg-pink-600/20" style={{ animationDelay: '1s' }}></div>
+                    <div className="absolute start-1/4 top-20 h-96 w-96 animate-float rounded-full bg-indigo-300/30 blur-3xl dark:bg-indigo-600/20"></div>
+                    <div className="absolute end-1/4 top-40 h-96 w-96 animate-float rounded-full bg-pink-300/30 blur-3xl dark:bg-pink-600/20" style={{ animationDelay: '1s' }}></div>
                     <div className="absolute bottom-20 left-1/2 h-96 w-96 animate-float rounded-full bg-purple-300/30 blur-3xl dark:bg-purple-600/20" style={{ animationDelay: '2s' }}></div>
                 </div>
 
@@ -81,7 +88,7 @@ const Landing = () => {
                         <br />
                         <span className="relative inline-block pb-2 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
                             {t('hero_title_2')}
-                            <svg className="absolute -bottom-1 left-0 w-full" height="12" viewBox="0 0 200 12" fill="none">
+                            <svg className="absolute -bottom-1 start-0 w-full" height="12" viewBox="0 0 200 12" fill="none">
                                 <path d="M2 10C60 2 140 2 198 10" stroke="url(#gradient)" strokeWidth="3" strokeLinecap="round" />
                                 <defs>
                                     <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -103,7 +110,7 @@ const Landing = () => {
                     <div className="animate-fadeInUp stagger-3 flex flex-col items-center justify-center gap-4 sm:flex-row">
                         <Link to="/listings" className="w-full sm:w-auto">
                             <Button size="lg" className="btn-animate gradient-primary w-full border-0 px-8 py-6 text-lg font-semibold text-white shadow-xl hover:shadow-2xl sm:w-auto">
-                                <Search className="mr-2 h-5 w-5" />
+                                <Search className="me-2 h-5 w-5" />
                                 {t('browse_listings')}
                             </Button>
                         </Link>

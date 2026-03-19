@@ -89,7 +89,7 @@ const Onboarding = () => {
             <div>
               <label className="block mb-2 font-semibold text-gray-900 dark:text-white">{t('university_institution')}</label>
               <div className="grid grid-cols-2 gap-2 mb-2">
-                {["Cairo University", "Ain Shams", "AUC", "GUC", "BUE", "AOU", "MUST", "MSA"].map(uni => (
+                {[t('uni_cairo', "Cairo University"), t('uni_ain_shams', "Ain Shams"), t('uni_auc', "AUC"), t('uni_guc', "GUC"), t('uni_bue', "BUE"), t('uni_aou', "AOU"), t('uni_must', "MUST"), t('uni_msa', "MSA")].map(uni => (
                   <button
                     key={uni}
                     onClick={() => setUniversity(uni)}
@@ -103,7 +103,7 @@ const Onboarding = () => {
                 ))}
                 <button
                   onClick={() => setUniversity("Other")}
-                  className={`px-3 py-2 text-sm rounded-lg border-2 transition-all ${university === "Other" || (!["Cairo University", "Ain Shams", "AUC", "GUC", "BUE", "AOU", "MUST", "MSA"].includes(university) && university !== "")
+                  className={`px-3 py-2 text-sm rounded-lg border-2 transition-all ${university === "Other" || (![t('uni_cairo'), t('uni_ain_shams'), t('uni_auc'), t('uni_guc'), t('uni_bue'), t('uni_aou'), t('uni_must'), t('uni_msa')].includes(university) && university !== "")
                     ? "border-indigo-600 bg-indigo-50 text-indigo-600 dark:bg-indigo-900/40"
                     : "border-gray-200 hover:border-indigo-300 dark:border-gray-700 dark:text-gray-300"
                     }`}
@@ -111,7 +111,7 @@ const Onboarding = () => {
                   {t('other')}
                 </button>
               </div>
-              {(university === "Other" || (!["Cairo University", "Ain Shams", "AUC", "GUC", "BUE", "AOU", "MUST", "MSA"].includes(university) && university !== "")) && (
+              {(university === "Other" || (![t('uni_cairo'), t('uni_ain_shams'), t('uni_auc'), t('uni_guc'), t('uni_bue'), t('uni_aou'), t('uni_must'), t('uni_msa')].includes(university) && university !== "")) && (
                 <input
                   type="text"
                   placeholder={t('type_university_name')}

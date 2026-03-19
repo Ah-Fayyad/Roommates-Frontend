@@ -13,6 +13,8 @@ interface User {
   role: "USER" | "ADMIN" | "LANDLORD" | "ADVERTISER";
   isVerified?: boolean;
   verificationStatus?: "PENDING" | "VERIFIED" | "REJECTED" | "NONE";
+  licenseNumber?: string;
+  companyName?: string;
   language?: string;
 }
 
@@ -29,6 +31,8 @@ interface AuthContextType {
     university?: string,
     bio?: string,
     preferences?: any,
+    companyName?: string,
+    licenseNumber?: string,
   ) => Promise<void>;
   logout: () => void;
   updateUser: (user: User) => void;
@@ -103,10 +107,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     university?: string,
     bio?: string,
     preferences?: any,
+    companyName?: string,
+    licenseNumber?: string,
   ) => {
     try {
       console.log("🔐 Starting registration...", { email, fullName, role });
-      
+
       const response = await axiosInstance.post("/auth/signup", {
         email,
         password,
@@ -115,6 +121,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         phoneNumber: phoneNumber || "",
         university: university || "",
         bio: bio || "",
+        companyName: companyName || "",
+        licenseNumber: licenseNumber || "",
         preferences: preferences || {},
       });
 

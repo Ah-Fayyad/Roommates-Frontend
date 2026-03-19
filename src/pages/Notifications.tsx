@@ -6,89 +6,33 @@ import {
   Info,
   AlertTriangle,
   CheckCircle,
+  MessageCircle,
+  Calendar,
 } from "lucide-react";
 import { Button } from "../components/ui/Button";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import { API_BASE_URL } from "../config/constants";
 
-interface Notification {
-  id: string;
-  type: "INFO" | "WARNING" | "SUCCESS" | "ERROR";
-  title: string;
-  message: string;
-  read: boolean;
-  createdAt: string;
-  data?: any;
-}
+import { useNotifications } from "../context/NotificationContext";
+import { useTranslation } from "react-i18next";
 
 const Notifications = () => {
-  const { token } = useAuth();
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchNotifications();
-  }, [token]);
-
-  const fetchNotifications = async () => {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/notifications`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setNotifications(response.data);
-    } catch (error) {
-      console.error("Failed to fetch notifications", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const markAsRead = async (id: string) => {
-    try {
-      await axios.put(
-        `${API_BASE_URL}/notifications/${id}/read`,
-        {},
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      setNotifications(
-        notifications.map((n) => (n.id === id ? { ...n, read: true } : n))
-      );
-    } catch (error) {
-      console.error("Failed to mark as read", error);
-    }
-  };
-
-  const deleteNotification = async (id: string) => {
-    try {
-      await axios.delete(`${API_BASE_URL}/notifications/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setNotifications(notifications.filter((n) => n.id !== id));
-    } catch (error) {
-      console.error("Failed to delete notification", error);
-    }
-  };
-
-  const markAllAsRead = async () => {
-    try {
-      await axios.put(
-        `${API_BASE_URL}/notifications/read-all`,
-        {},
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      setNotifications(notifications.map((n) => ({ ...n, read: true })));
-    } catch (error) {
-      console.error("Failed to mark all as read", error);
-    }
-  };
+  const { t } = useTranslation();
+  const {
+    notifications,
+    markAsRead,
+    markAllAsRead,
+    deleteNotification,
+    loading,
+  } = useNotifications();
 
   const getIcon = (type: string) => {
     switch (type) {
+      case "NEW_MESSAGE":
+        return <MessageCircle className="h-6 w-6 text-indigo-500" />;
+      case "VISIT_REQUEST":
+        return <Calendar className="h-6 w-6 text-purple-500" />;
       case "WARNING":
         return <AlertTriangle className="h-6 w-6 text-yellow-500" />;
       case "SUCCESS":
@@ -103,7 +47,7 @@ const Notifications = () => {
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        Loading...
+        {t("loading")}
       </div>
     );
   }
@@ -114,15 +58,15 @@ const Notifications = () => {
         <div className="mb-8 flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              Notifications
+              {t("notifications_title")}
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
-              Stay updated with your latest activities
+              {t("notifications_subtitle")}
             </p>
           </div>
           {notifications.length > 0 && (
             <Button variant="outline" onClick={markAllAsRead}>
-              Mark all as read
+              {t("mark_all_read")}
             </Button>
           )}
         </div>
@@ -132,21 +76,20 @@ const Notifications = () => {
             <div className="glass flex flex-col items-center justify-center rounded-2xl p-12 text-center">
               <Bell className="mb-4 h-16 w-16 text-gray-300 dark:text-gray-600" />
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-                No notifications yet
+                {t("no_notifications")}
               </h3>
               <p className="text-gray-600 dark:text-gray-400">
-                We'll notify you when something important happens.
+                {t("no_notifications_desc")}
               </p>
             </div>
           ) : (
             notifications.map((notification) => (
               <div
                 key={notification.id}
-                className={`glass animate-fadeInUp flex items-start gap-4 rounded-2xl p-6 transition-all ${
-                  !notification.read
-                    ? "border-l-4 border-indigo-500 bg-indigo-50/50 dark:bg-indigo-900/10"
-                    : ""
-                }`}
+                className={`glass animate-fadeInUp flex items-start gap-4 rounded-2xl p-6 transition-all ${!notification.read
+                  ? "border-s-4 border-indigo-500 bg-indigo-50/50 dark:bg-indigo-900/10"
+                  : ""
+                  }`}
               >
                 <div className="flex-shrink-0">
                   {getIcon(notification.type)}
@@ -154,11 +97,10 @@ const Notifications = () => {
                 <div className="flex-1">
                   <div className="mb-1 flex items-start justify-between">
                     <h3
-                      className={`font-semibold ${
-                        !notification.read
-                          ? "text-gray-900 dark:text-white"
-                          : "text-gray-600 dark:text-gray-400"
-                      }`}
+                      className={`font-semibold ${!notification.read
+                        ? "text-gray-900 dark:text-white"
+                        : "text-gray-600 dark:text-gray-400"
+                        }`}
                     >
                       {notification.title}
                     </h3>
@@ -175,7 +117,7 @@ const Notifications = () => {
                     <button
                       onClick={() => markAsRead(notification.id)}
                       className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-indigo-600 dark:hover:bg-gray-800"
-                      title="Mark as read"
+                      title={t("mark_as_read")}
                     >
                       <Check className="h-5 w-5" />
                     </button>
@@ -183,7 +125,7 @@ const Notifications = () => {
                   <button
                     onClick={() => deleteNotification(notification.id)}
                     className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-red-600 dark:hover:bg-gray-800"
-                    title="Delete"
+                    title={t("delete")}
                   >
                     <Trash2 className="h-5 w-5" />
                   </button>

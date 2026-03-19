@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
 import { useAuth } from "../context/AuthContext";
+import { useTranslation } from "react-i18next";
 import axios from "axios";
 import { API_BASE_URL } from "../config/constants";
 import {
@@ -23,26 +24,27 @@ import {
 
 const Profile = () => {
   const { user, token, updateUser } = useAuth();
+  const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
   const [profile, setProfile] = useState({
     fullName: user?.fullName || "",
     email: user?.email || "",
-    phone: "+20 123 456 7890",
-    location: "Cairo, Egypt",
+    phone: user?.phone || "+20 123 456 7890",
+    location: user?.location || "Cairo, Egypt",
     university: user?.university || "",
-    major: "Computer Science",
-    year: "Junior",
-    bio: user?.bio || "I'm looking for a clean and quiet roommate.",
+    major: user?.major || "Computer Science",
+    year: user?.year || "Junior",
+    bio: user?.bio || "",
     avatar: user?.avatar || "https://images.unsplash.com/photo-1535711861845-e1fc4c208451?q=80&w=400",
     preferences: {
-      cleanliness: 9,
-      quietHours: 8,
-      socializing: 6,
-      cooking: 7,
+      cleanliness: user?.preferences?.cleanliness || 9,
+      quietHours: user?.preferences?.quietHours || 8,
+      socializing: user?.preferences?.socializing || 6,
+      cooking: user?.preferences?.cooking || 7,
     },
-    interests: ["Reading", "Cooking", "Hiking", "Gaming"],
+    interests: user?.interests || ["Reading", "Cooking", "Hiking", "Gaming"],
   });
 
   // Sync with auth user when it updates
@@ -54,7 +56,13 @@ const Profile = () => {
         email: user.email,
         university: user.university || prev.university,
         bio: user.bio || prev.bio,
-        avatar: user.avatar || prev.avatar
+        avatar: user.avatar || prev.avatar,
+        phone: user.phone || prev.phone,
+        location: user.location || prev.location,
+        major: user.major || prev.major,
+        year: user.year || prev.year,
+        preferences: user.preferences || prev.preferences,
+        interests: user.interests || prev.interests
       }));
     }
   }, [user]);
@@ -78,7 +86,7 @@ const Profile = () => {
         setProfile((prev) => ({ ...prev, avatar: res.data.url }));
       } catch (err) {
         console.error("Upload failed", err);
-        setError("Failed to upload avatar");
+        setError(t("upload_failed"));
       } finally {
         setUploading(false);
       }
@@ -97,17 +105,17 @@ const Profile = () => {
       }
       setIsEditing(false);
     } catch (err: any) {
-      setError(err.response?.data?.message || "Failed to update profile");
+      setError(err.response?.data?.message || t("failed_update_profile"));
     } finally {
       setIsSaving(false);
     }
   };
 
   const stats = [
-    { label: "Listings", value: "3", icon: Home },
-    { label: "Favorites", value: "12", icon: Heart },
-    { label: "Messages", value: "24", icon: MessageCircle },
-    { label: "Rating", value: "4.8", icon: Star },
+    { label: t("listings"), value: user?.listingsCount || "0", icon: Home },
+    { label: t("favorites"), value: user?.favoritesCount || "0", icon: Heart },
+    { label: t("messages"), value: user?.chatsCount || "0", icon: MessageCircle },
+    { label: t("rating"), value: user?.rating || "5.0", icon: Star },
   ];
 
   return (
@@ -148,9 +156,11 @@ const Profile = () => {
                   />
                 </label>
               )}
-              <div className="absolute left-0 top-0 flex h-8 w-8 items-center justify-center rounded-full bg-green-500 text-white shadow-lg">
-                <Shield className="h-4 w-4" />
-              </div>
+              {user?.isVerified && (
+                <div className="absolute left-0 top-0 flex h-8 w-8 items-center justify-center rounded-full bg-green-500 text-white shadow-lg">
+                  <Shield className="h-4 w-4" />
+                </div>
+              )}
             </div>
 
             {/* Name and Actions */}
@@ -181,7 +191,7 @@ const Profile = () => {
                       {!isSaving && (
                         <>
                           <Save className="mr-2 h-4 w-4" />
-                          Save
+                          {t("save")}
                         </>
                       )}
                     </Button>
@@ -190,13 +200,13 @@ const Profile = () => {
                       variant="outline"
                     >
                       <X className="mr-2 h-4 w-4" />
-                      Cancel
+                      {t("cancel")}
                     </Button>
                   </>
                 ) : (
                   <Button onClick={() => setIsEditing(true)} variant="gradient">
                     <Edit2 className="mr-2 h-4 w-4" />
-                    Edit Profile
+                    {t("edit_profile")}
                   </Button>
                 )}
               </div>
@@ -231,7 +241,7 @@ const Profile = () => {
             {/* About */}
             <div className="glass animate-fadeInUp stagger-1 rounded-2xl p-6">
               <h2 className="mb-4 text-xl font-bold text-gray-900 dark:text-white">
-                About Me
+                {t("about_me")}
               </h2>
               {isEditing ? (
                 <textarea
@@ -244,7 +254,7 @@ const Profile = () => {
                 />
               ) : (
                 <p className="text-gray-700 dark:text-gray-300">
-                  {profile.bio}
+                  {profile.bio || t("no_bio_yet", "No bio added yet.")}
                 </p>
               )}
             </div>
@@ -252,32 +262,56 @@ const Profile = () => {
             {/* Education */}
             <div className="glass animate-fadeInUp stagger-2 rounded-2xl p-6">
               <h2 className="mb-4 text-xl font-bold text-gray-900 dark:text-white">
-                Education
+                {t("education")}
               </h2>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600 dark:text-gray-400">
-                    University:
+                    {t("university")}:
                   </span>
-                  <span className="font-semibold text-gray-900 dark:text-white">
-                    {profile.university}
-                  </span>
+                  {isEditing ? (
+                    <Input
+                      value={profile.university}
+                      onChange={(e) => setProfile({ ...profile, university: e.target.value })}
+                      className="max-w-[200px]"
+                    />
+                  ) : (
+                    <span className="font-semibold text-gray-900 dark:text-white">
+                      {profile.university}
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600 dark:text-gray-400">
-                    Major:
+                    {t("major")}:
                   </span>
-                  <span className="font-semibold text-gray-900 dark:text-white">
-                    {profile.major}
-                  </span>
+                  {isEditing ? (
+                    <Input
+                      value={profile.major}
+                      onChange={(e) => setProfile({ ...profile, major: e.target.value })}
+                      className="max-w-[200px]"
+                    />
+                  ) : (
+                    <span className="font-semibold text-gray-900 dark:text-white">
+                      {profile.major}
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600 dark:text-gray-400">
-                    Year:
+                    {t("year")}:
                   </span>
-                  <span className="font-semibold text-gray-900 dark:text-white">
-                    {profile.year}
-                  </span>
+                  {isEditing ? (
+                    <Input
+                      value={profile.year}
+                      onChange={(e) => setProfile({ ...profile, year: e.target.value })}
+                      className="max-w-[200px]"
+                    />
+                  ) : (
+                    <span className="font-semibold text-gray-900 dark:text-white">
+                      {profile.year}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -285,14 +319,14 @@ const Profile = () => {
             {/* Preferences */}
             <div className="glass animate-fadeInUp stagger-3 rounded-2xl p-6">
               <h2 className="mb-4 text-xl font-bold text-gray-900 dark:text-white">
-                Living Preferences
+                {t("living_preferences")}
               </h2>
               <div className="space-y-4">
                 {Object.entries(profile.preferences).map(([key, value]) => (
                   <div key={key}>
                     <div className="mb-2 flex items-center justify-between">
                       <span className="capitalize text-gray-700 dark:text-gray-300">
-                        {key.replace(/([A-Z])/g, " $1")}
+                        {t(key.replace(/([A-Z])/g, "_$1").toLowerCase())}
                       </span>
                       <span className="font-semibold text-indigo-600 dark:text-indigo-400">
                         {value}/10
@@ -315,7 +349,7 @@ const Profile = () => {
             {/* Interests */}
             <div className="glass animate-fadeInUp stagger-4 rounded-2xl p-6">
               <h2 className="mb-4 text-xl font-bold text-gray-900 dark:text-white">
-                Interests
+                {t("interests")}
               </h2>
               <div className="flex flex-wrap gap-2">
                 {profile.interests.map((interest, index) => (
@@ -323,7 +357,7 @@ const Profile = () => {
                     key={index}
                     className="rounded-full bg-indigo-50 px-4 py-2 text-sm font-medium text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400"
                   >
-                    {interest}
+                    {t(interest.toLowerCase(), interest)}
                   </span>
                 ))}
               </div>
@@ -332,34 +366,41 @@ const Profile = () => {
             {/* Verification Status */}
             <div className="glass animate-fadeInUp stagger-5 rounded-2xl p-6">
               <h2 className="mb-4 text-xl font-bold text-gray-900 dark:text-white">
-                Verification
+                {t("verification")}
               </h2>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-gray-700 dark:text-gray-300">
-                    Email
+                    {t("email")}
                   </span>
                   <span className="flex items-center gap-1 text-green-600 dark:text-green-400">
                     <Shield className="h-4 w-4" />
-                    Verified
+                    {t("verified")}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-700 dark:text-gray-300">
-                    Student ID
+                    {t("student_id")}
                   </span>
                   <span className="flex items-center gap-1 text-green-600 dark:text-green-400">
                     <Shield className="h-4 w-4" />
-                    Verified
+                    {t("verified")}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-700 dark:text-gray-300">
-                    Phone
+                    {t("phone")}
                   </span>
-                  <Button variant="outline" size="sm">
-                    Verify
-                  </Button>
+                  {user?.phone ? (
+                    <span className="flex items-center gap-1 text-green-600 dark:text-green-400">
+                      <Shield className="h-4 w-4" />
+                      {t("verified")}
+                    </span>
+                  ) : (
+                    <Button variant="outline" size="sm">
+                      {t("verify")}
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>
@@ -367,25 +408,27 @@ const Profile = () => {
             {/* Quick Actions */}
             <div className="glass animate-fadeInUp stagger-6 rounded-2xl p-6">
               <h2 className="mb-4 text-xl font-bold text-gray-900 dark:text-white">
-                Quick Actions
+                {t("quick_actions")}
               </h2>
               <div className="space-y-4">
-                <Link to="/listings/create">
-                  <Button variant="outline" className="w-full justify-start">
-                    <Home className="mr-2 h-4 w-4" />
-                    Create Listing
-                  </Button>
-                </Link>
+                {(user?.role === 'LANDLORD' || user?.role === 'ADVERTISER') && (
+                  <Link to="/listings/create">
+                    <Button variant="outline" className="w-full justify-start">
+                      <Home className="mr-2 h-4 w-4" />
+                      {t("post_new_room")}
+                    </Button>
+                  </Link>
+                )}
                 <Link to="/matches">
                   <Button variant="outline" className="w-full justify-start">
                     <Heart className="mr-2 h-4 w-4" />
-                    View Matches
+                    {t("smart_matching")}
                   </Button>
                 </Link>
                 <Link to="/settings">
                   <Button variant="outline" className="w-full justify-start">
                     <Edit2 className="mr-2 h-4 w-4" />
-                    Settings
+                    {t("settings")}
                   </Button>
                 </Link>
               </div>

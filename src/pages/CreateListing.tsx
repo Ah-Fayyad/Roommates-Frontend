@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
 import AIPriceSuggestion from "../components/AIPriceSuggestion";
@@ -24,10 +24,13 @@ const CreateListing = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { user, token } = useAuth();
+  const { id } = useParams();
+  const isEditMode = !!id;
   const [step, setStep] = useState(1);
   const [showAIPricing, setShowAIPricing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(isEditMode);
 
   // Check for verification (Required for Landlords and Advertisers)
   const isLandlordOrAdvertiser = user?.role === "LANDLORD" || user?.role === "ADVERTISER";
@@ -104,11 +107,11 @@ const CreateListing = () => {
         },
         (error) => {
           console.error("Error getting location:", error);
-          alert("Could not get your location. Please enter address manually.");
+          alert(t('could_not_get_location'));
         },
       );
     } else {
-      alert("Geolocation is not supported by this browser.");
+      alert(t('geolocation_not_supported'));
     }
   };
 
@@ -132,6 +135,69 @@ const CreateListing = () => {
   const handlePriceSelect = (price: number) => {
     setFormData((prev) => ({ ...prev, price }));
   };
+
+  useEffect(() => {
+    const fetchListing = async () => {
+      if (!isEditMode) return;
+      try {
+        const response = await axios.get(`${API_BASE_URL}/listings/${id}`);
+        const listing = response.data;
+
+        // Parse amenities
+        let amenities: string[] = [];
+        try {
+          if (typeof listing.amenities === "string") {
+            amenities = JSON.parse(listing.amenities);
+          } else if (Array.isArray(listing.amenities)) {
+            amenities = listing.amenities;
+          }
+        } catch (e) {
+          amenities = typeof listing.amenities === "string" ? [listing.amenities] : [];
+        }
+
+        setFormData({
+          title: listing.title,
+          location: listing.address,
+          size: listing.size || 20,
+          roomType: listing.roomType || "private",
+          price: listing.price,
+          description: listing.description,
+          furnished: amenities.includes("furnished"),
+          hasWifi: amenities.includes("wifi"),
+          hasParking: amenities.includes("parking"),
+          hasKitchen: amenities.includes("kitchen"),
+          hasLaundry: amenities.includes("laundry"),
+          hasBalcony: amenities.includes("balcony"),
+          petsAllowed: amenities.includes("pets_allowed"),
+          isMilitaryFriendly: amenities.includes("military_friendly"),
+          latitude: listing.latitude,
+          longitude: listing.longitude,
+          googleMapsUrl: listing.googleMapsUrl || "",
+          distanceToUniversity: 2, // Default or fetch if available
+          floor: 1, // Default or fetch if available
+        });
+
+        if (listing.images && Array.isArray(listing.images)) {
+          setImageUrls(listing.images.map((img: any) => img.url));
+        }
+      } catch (err) {
+        console.error("Failed to fetch listing for edit", err);
+        setError(t('failed_load_listing'));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchListing();
+  }, [id, isEditMode]);
+
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent"></div>
+      </div>
+    );
+  }
 
   const [images, setImages] = useState<File[]>([]);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
@@ -208,46 +274,46 @@ const CreateListing = () => {
     try {
       // Validate required fields
       if (!formData.title.trim()) {
-        setError("Title is required");
+        setError(t('title_required'));
         setIsSubmitting(false);
         return;
       }
       if (!formData.location) {
-        setError("Location is required");
+        setError(t('location_required'));
         setIsSubmitting(false);
         return;
       }
       if (formData.price <= 0) {
-        setError("Price must be greater than 0");
+        setError(t('price_greater_than_0'));
         setIsSubmitting(false);
         return;
       }
       if (!formData.description.trim()) {
-        setError("Description is required");
+        setError(t('description_required'));
         setIsSubmitting(false);
         return;
       }
       if (formData.latitude === 0 || formData.longitude === 0) {
-        setError("Please select a location on the map");
+        setError(t('select_location_on_map'));
         setIsSubmitting(false);
         return;
       }
       if (imageUrls.length === 0) {
-        setError("Please upload at least one image for your listing");
+        setError(t('upload_at_least_one_image'));
         setIsSubmitting(false);
         return;
       }
 
       const amenities = [];
-      if (formData.furnished) amenities.push("Furnished");
-      if (formData.hasWifi) amenities.push("WiFi");
-      if (formData.hasParking) amenities.push("Parking");
-      if (formData.hasKitchen) amenities.push("Kitchen");
-      if (formData.hasLaundry) amenities.push("Laundry");
-      if (formData.hasBalcony) amenities.push("Balcony");
-      if (formData.petsAllowed) amenities.push("Pets Allowed");
+      if (formData.furnished) amenities.push("furnished");
+      if (formData.hasWifi) amenities.push("wifi");
+      if (formData.hasParking) amenities.push("parking");
+      if (formData.hasKitchen) amenities.push("kitchen");
+      if (formData.hasLaundry) amenities.push("laundry");
+      if (formData.hasBalcony) amenities.push("balcony");
+      if (formData.petsAllowed) amenities.push("pets_allowed");
       if (formData.isMilitaryFriendly)
-        amenities.push("Military Friendly (2 Weeks)");
+        amenities.push("military_friendly");
 
       const listingData = {
         title: formData.title.trim(),
@@ -263,23 +329,36 @@ const CreateListing = () => {
         size: formData.size,
       };
 
-      const response = await axios.post(
-        `${API_BASE_URL}/listings`,
-        listingData,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        },
-      );
+      if (isEditMode) {
+        const response = await axios.put(
+          `${API_BASE_URL}/listings/${id}`,
+          listingData,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        );
+        if (response.status === 200) {
+          navigate("/my-listings");
+        }
+      } else {
+        const response = await axios.post(
+          `${API_BASE_URL}/listings`,
+          listingData,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        );
 
-      if (response.status === 201) {
-        navigate("/my-listings");
+        if (response.status === 201) {
+          navigate("/my-listings");
+        }
       }
     } catch (err: any) {
       console.error("Create listing error:", err);
       setError(
         err.response?.data?.message ||
         err.response?.data?.errors?.[0]?.msg ||
-        "Failed to create listing",
+        t("failed_create_listing"),
       );
     } finally {
       setIsSubmitting(false);
@@ -308,13 +387,13 @@ const CreateListing = () => {
         <div className="mb-8 animate-fadeInUp">
           <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 px-4 py-2 text-sm font-semibold text-white shadow-lg">
             <Home className="h-4 w-4" />
-            <span>Create New Listing</span>
+            <span>{isEditMode ? t('edit_listing') : t('create_new_listing')}</span>
           </div>
           <h1 className="mb-2 text-4xl font-bold text-gray-900 dark:text-white">
-            Post Your Room
+            {isEditMode ? t('edit_your_listing') : t('post_your_room')}
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-400">
-            Find the perfect roommate with our AI-powered platform
+            {t('find_perfect_roommate_ai')}
           </p>
         </div>
 
@@ -407,11 +486,11 @@ const CreateListing = () => {
                         required
                       >
                         <option value="">{t('select_general_area')}</option>
-                        <option value="downtown">Downtown</option>
-                        <option value="university">University Area</option>
-                        <option value="campus">Campus</option>
-                        <option value="suburb">Suburb</option>
-                        <option value="uptown">Uptown</option>
+                        <option value="downtown">{t('downtown')}</option>
+                        <option value="university">{t('university_area')}</option>
+                        <option value="campus">{t('campus')}</option>
+                        <option value="suburb">{t('suburb')}</option>
+                        <option value="uptown">{t('uptown')}</option>
                       </select>
                       <div className="flex items-center gap-2 rounded-xl border-2 border-gray-200 bg-gray-50 px-4 py-3 dark:border-gray-700 dark:bg-gray-800">
                         <MapPin className="h-5 w-5 text-gray-500" />
@@ -532,7 +611,7 @@ const CreateListing = () => {
                     >
                       <img
                         src={url}
-                        alt={`Listing ${index + 1}`}
+                        alt={`${t('listing')} ${index + 1}`}
                         className="h-full w-full object-cover"
                       />
                       <div className="absolute inset-0 bg-black/0 transition-all hover:bg-black/10"></div>

@@ -20,7 +20,7 @@ import { API_BASE_URL } from "../config/constants";
 import { useAuth } from "../context/AuthContext";
 
 const Listings = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [searchTerm, setSearchTerm] = useState("");
   const [priceRange, setPriceRange] = useState("all");
   const [roomType, setRoomType] = useState("all");
@@ -228,7 +228,7 @@ const Listings = () => {
                 {t('find_perfect_room')}
               </h1>
               <p className="text-lg text-gray-600 dark:text-gray-400">
-                {t('browse_listings', { count: filteredListings.length })}
+                {t('browse_listings_count', { count: filteredListings.length })}
               </p>
             </div>
 
@@ -238,19 +238,19 @@ const Listings = () => {
                 {/* Search */}
                 <div className="md:col-span-2">
                   <div className="relative group">
-                    <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-500 transition-colors" />
+                    <Search className="absolute start-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-500 transition-colors" />
                     <input
                       type="text"
                       placeholder={t('search_listings_placeholder')}
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       onKeyDown={(e) => e.key === "Enter" && handleAiSearch()}
-                      className="w-full rounded-xl border-2 border-gray-200 bg-white py-3 pl-12 pr-28 transition-all focus:border-indigo-500 focus:outline-none focus:ring-4 focus:ring-indigo-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                      className="w-full rounded-xl border-2 border-gray-200 bg-white py-3 ps-12 pe-28 transition-all focus:border-indigo-500 focus:outline-none focus:ring-4 focus:ring-indigo-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                     />
                     <button
                       onClick={handleAiSearch}
                       disabled={isAiSearching || !searchTerm.trim()}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 text-white px-3 py-1.5 rounded-lg text-sm font-semibold transition-all shadow-sm active:scale-95"
+                      className="absolute end-2 top-1/2 -translate-y-1/2 flex items-center gap-1 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 text-white px-3 py-1.5 rounded-lg text-sm font-semibold transition-all shadow-sm active:scale-95"
                     >
                       {isAiSearching ? (
                         <div className="h-4 w-4 animate-spin border-2 border-white/30 border-t-white rounded-full" />
@@ -300,7 +300,7 @@ const Listings = () => {
                     : "bg-indigo-50 text-indigo-600 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-400 dark:hover:bg-indigo-900/50"
                     }`}
                 >
-                  <SlidersHorizontal className="mr-2 inline h-4 w-4" />
+                  <SlidersHorizontal className="me-2 inline h-4 w-4" />
                   {t('more_filters')}{" "}
                   {selectedAmenities.length > 0 &&
                     `(${selectedAmenities.length})`}
@@ -371,7 +371,7 @@ const Listings = () => {
                       size="lg"
                       className="shadow-lg shadow-indigo-500/20"
                     >
-                      <PlusCircle className="mr-2 h-5 w-5" />
+                      <PlusCircle className="me-2 h-5 w-5" />
                       {t('post_your_room')}
                     </Button>
                   </Link>
@@ -382,7 +382,7 @@ const Listings = () => {
                       size="lg"
                       className="shadow-lg shadow-indigo-500/20"
                     >
-                      <Sparkles className="mr-2 h-5 w-5" />
+                      <Sparkles className="me-2 h-5 w-5" />
                       {t('find_smart_match')}
                     </Button>
                   </Link>
@@ -396,7 +396,7 @@ const Listings = () => {
                       : "text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
                       }`}
                   >
-                    <SlidersHorizontal className="mr-2 h-4 w-4" />
+                    <SlidersHorizontal className="me-2 h-4 w-4" />
                     {t('list_view')}
                   </button>
                   <button
@@ -406,7 +406,7 @@ const Listings = () => {
                       : "text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
                       }`}
                   >
-                    <MapPin className="mr-2 h-4 w-4" />
+                    <MapPin className="me-2 h-4 w-4" />
                     {t('map_view')}
                   </button>
                 </div>
@@ -436,15 +436,18 @@ const Listings = () => {
                         }
                         alt={listing.title}
                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800";
+                        }}
                       />
                       {listing.owner?.isVerified && (
-                        <div className="absolute right-3 top-3 rounded-full bg-green-500 px-3 py-1 text-xs font-semibold text-white shadow-lg">
+                        <div className="absolute end-3 top-3 rounded-full bg-green-500 px-3 py-1 text-xs font-semibold text-white shadow-lg">
                           ✓ {t('verified')}
                         </div>
                       )}
                       <button
                         onClick={(e) => toggleFavorite(e, listing.id)}
-                        className={`absolute left-3 top-3 rounded-full p-2 transition-all shadow-sm ${favorites.includes(listing.id)
+                        className={`absolute start-3 top-3 rounded-full p-2 transition-all shadow-sm ${favorites.includes(listing.id)
                           ? "bg-red-500 text-white hover:bg-red-600"
                           : "bg-white/90 text-gray-700 hover:bg-white hover:text-red-500 dark:bg-gray-800/90 dark:text-gray-300"
                           }`}
@@ -507,7 +510,7 @@ const Listings = () => {
                           <span className="text-xs font-normal text-gray-500">
                             {t('egp')}
                           </span>
-                          {listing.price.toLocaleString('ar-EG')}
+                          {listing.price.toLocaleString(i18n.language === 'ar' ? 'ar-EG' : 'en-US')}
                           <span className="text-xs font-normal text-gray-500">
                             {t('per_month_short')}
                           </span>
@@ -613,13 +616,13 @@ const Listings = () => {
                   setShowFiltersModal(false);
                 }}
               >
-                Reset All
+                {t('reset_all')}
               </Button>
               <Button
                 variant="gradient"
                 onClick={() => setShowFiltersModal(false)}
               >
-                Show Listings
+                {t('show_listings')}
               </Button>
             </div>
           </div>

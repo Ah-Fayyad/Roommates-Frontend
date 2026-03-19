@@ -109,19 +109,19 @@ const UserManagement = () => {
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                 <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('user_management')}</h1>
                 <div className="relative w-full md:w-64">
-                    <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                    <Search className="absolute start-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
                     <input
                         type="text"
                         placeholder={t('search_users')}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full rounded-xl border-2 border-gray-200 pl-10 pr-4 py-2 focus:border-indigo-500 focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                        className="w-full rounded-xl border-2 border-gray-200 ps-10 pe-4 py-2 focus:border-indigo-500 focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                     />
                 </div>
             </div>
 
             <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                <table className="w-full text-left text-sm text-gray-500 dark:text-gray-400">
+                <table className="w-full text-start text-sm text-gray-500 dark:text-gray-400">
                     <thead className="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
                         <tr>
                             <th className="px-6 py-3">{t('user')}</th>

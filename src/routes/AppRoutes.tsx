@@ -32,6 +32,7 @@ import ContentEditor from "../admin/pages/ContentEditor";
 import ModerationLogs from "../admin/pages/ModerationLogs";
 import AdminSettings from "../admin/pages/Settings";
 import AdminReports from "../admin/pages/Reports";
+import AdminNotifications from "../admin/pages/Notifications";
 
 const AppRoutes = () => {
   return (
@@ -44,6 +45,22 @@ const AppRoutes = () => {
         <Route path="terms" element={<TermsOfService />} />
         <Route path="privacy" element={<PrivacyPolicy />} />
         <Route path="listings" element={<Listings />} />
+        <Route
+          path="listings/create"
+          element={
+            <ProtectedRoute requiredRoles={["LANDLORD", "ADVERTISER"]}>
+              <CreateListing />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="listings/edit/:id"
+          element={
+            <ProtectedRoute requiredRoles={["LANDLORD", "ADVERTISER"]}>
+              <CreateListing />
+            </ProtectedRoute>
+          }
+        />
         <Route path="listings/:id" element={<ListingDetails />} />
         <Route path="unauthorized" element={<Unauthorized />} />
 
@@ -69,14 +86,6 @@ const AppRoutes = () => {
           element={
             <ProtectedRoute>
               <Onboarding />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="listings/create"
-          element={
-            <ProtectedRoute requiredRoles={["LANDLORD", "ADVERTISER"]}>
-              <CreateListing />
             </ProtectedRoute>
           }
         />
@@ -163,6 +172,7 @@ const AppRoutes = () => {
         <Route path="moderation" element={<ModerationLogs />} />
         <Route path="reports" element={<AdminReports />} />
         <Route path="settings" element={<AdminSettings />} />
+        <Route path="notifications" element={<AdminNotifications />} />
       </Route>
     </Routes>
   );

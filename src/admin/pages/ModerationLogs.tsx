@@ -51,13 +51,14 @@ const Moderation = () => {
                 headers: { Authorization: `Bearer ${token}` }
             });
             fetchQueue();
+            alert(t('approved_success'));
         } catch (error) {
-            alert('Approve failed');
+            alert(t('action_failed'));
         }
     };
 
     const handleRejectListing = async (listingId: string) => {
-        const reason = prompt('Reason for rejection:');
+        const reason = prompt(t('reject_reason'));
         if (!reason) return;
         try {
             await axios.post(`${API_BASE_URL}/admin/reject-listing`, { listingId, reason }, {
@@ -96,7 +97,7 @@ const Moderation = () => {
                                     <div className="flex gap-2">
                                         <a href={v.documentUrl} target="_blank" rel="noreferrer">
                                             <Button variant="outline" size="sm">
-                                                <Eye className="mr-2 h-4 w-4" /> {t('view_doc')}
+                                                <Eye className="me-2 h-4 w-4" /> {t('view_doc')}
                                             </Button>
                                         </a>
                                         <Button variant="outline" size="sm" className="text-green-600 border-green-200">
@@ -123,13 +124,13 @@ const Moderation = () => {
                     <p className="text-gray-500">{t('no_listings')}</p>
                 ) : (
                     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                        <table className="w-full text-left text-sm">
+                        <table className="w-full text-start text-sm">
                             <thead className="bg-gray-50 text-xs uppercase dark:bg-gray-700">
                                 <tr>
                                     <th className="px-6 py-3">{t('listing')}</th>
                                     <th className="px-6 py-3">{t('owner')}</th>
                                     <th className="px-6 py-3">{t('price')}</th>
-                                    <th className="px-6 py-3 text-right">{t('actions')}</th>
+                                    <th className="px-6 py-3 text-end">{t('actions')}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -138,13 +139,13 @@ const Moderation = () => {
                                         <td className="px-6 py-4 font-medium">{l.title}</td>
                                         <td className="px-6 py-4">{l.owner.fullName}</td>
                                         <td className="px-6 py-4">${l.price}</td>
-                                        <td className="px-6 py-4 text-right">
+                                        <td className="px-6 py-4 text-end">
                                             <div className="flex justify-end gap-2">
                                                 <Button size="sm" variant="outline" onClick={() => handleApproveListing(l.id)} className="text-green-600">
-                                                    <CheckCircle size={14} className="mr-1" /> {t('approve')}
+                                                    <CheckCircle size={14} className="me-1" /> {t('approve')}
                                                 </Button>
                                                 <Button size="sm" variant="outline" onClick={() => handleRejectListing(l.id)} className="text-red-600">
-                                                    <XCircle size={14} className="mr-1" /> {t('reject')}
+                                                    <XCircle size={14} className="me-1" /> {t('reject')}
                                                 </Button>
                                             </div>
                                         </td>
