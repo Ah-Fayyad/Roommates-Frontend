@@ -442,17 +442,18 @@ const Signup = () => {
 
   return (
     <div className="min-h-screen flex selection:bg-indigo-100 selection:text-indigo-900">
-      {/* ─── DARK BRANDING PANEL ─── */}
-      <div className="hidden lg:flex lg:w-[40%] xl:w-[45%] relative flex-col items-center justify-center p-12 overflow-hidden bg-[#0A0D14]">
-        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_20%_20%,rgba(79,70,22px,0.15)_0%,transparent_50%)]" />
-        <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(circle_at_80%_80%,rgba(168,85,247,0.1)_0%,transparent_50%)]" />
+      {/* ─── Left Branding Panel ─── */}
+      <div className="hidden lg:flex lg:w-2/5 xl:w-1/2 relative flex-col items-center justify-center p-12 overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600">
+        <div className="absolute top-[-20%] left-[-10%] w-96 h-96 rounded-full bg-white/10 blur-3xl" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-80 h-80 rounded-full bg-pink-400/20 blur-3xl" />
 
-        <div className="relative z-10 w-full max-w-sm">
-          <Link to="/" className="flex items-center gap-3 mb-16 group">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+        <div className="relative z-10 text-white text-center max-w-md">
+          {/* Logo */}
+          <Link to="/" className="flex items-center justify-center gap-3 mb-12 group">
+            <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform">
               <Home className="w-6 h-6 text-white" />
             </div>
-            <span className="text-2xl font-black text-white tracking-tight uppercase">Roommates</span>
+            <span className="text-2xl font-bold tracking-tight uppercase">{t('app_name')}</span>
           </Link>
 
           <div className="space-y-12">
@@ -461,33 +462,33 @@ const Signup = () => {
               { icon: Shield, title: t("safe_secure_accounts"), desc: t("trust_is_key") },
               { icon: Heart, title: t("community_first"), desc: t("find_compatible_fast") },
             ].map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="flex gap-5 group">
-                <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-indigo-500 transition-all duration-300">
-                  <Icon className="w-6 h-6 text-indigo-400 group-hover:text-white" />
+              <div key={title} className="flex gap-5 group text-left">
+                <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center group-hover:bg-white/20 transition-all duration-300">
+                  <Icon className="w-6 h-6 text-white" />
                 </div>
                 <div>
                   <h3 className="text-white font-bold text-lg mb-1">{title}</h3>
-                  <p className="text-gray-400 text-sm leading-relaxed">{desc}</p>
+                  <p className="text-white/70 text-sm leading-relaxed">{desc}</p>
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="mt-20 p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl">
+          <div className="mt-20 p-6 rounded-3xl bg-white/10 border border-white/20 backdrop-blur-xl">
             <p className="text-white/80 text-sm italic mb-4 leading-relaxed font-medium">"{t("sarah_quote")}"</p>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 justify-center">
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 border border-white/20" />
-              <div>
+              <div className="text-left">
                 <p className="text-white font-bold text-xs uppercase tracking-wider">{t("sarah_m")}</p>
-                <p className="text-indigo-400 text-[10px] font-black uppercase tracking-widest">{t("sarah_desc")}</p>
+                <p className="text-white/60 text-[10px] font-black uppercase tracking-widest">{t("sarah_desc")}</p>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* ─── WHITE FORM PANEL ─── */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 bg-white dark:bg-[#0A0D14] overflow-y-auto">
+      {/* ─── Right Form Panel ─── */}
+      <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 bg-white dark:bg-gray-950 overflow-y-auto">
         <div className="w-full max-w-sm">
           {step > 1 && (
             <div className="mb-10">

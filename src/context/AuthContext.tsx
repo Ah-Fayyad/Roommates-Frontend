@@ -82,6 +82,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     initAuth();
   }, [i18n]);
 
+  useEffect(() => {
+    const handleAuthError = () => {
+      console.warn("Global auth error detected, logging out...");
+      logout();
+    };
+    window.addEventListener('auth_error', handleAuthError);
+    return () => window.removeEventListener('auth_error', handleAuthError);
+  }, []);
+
   const login = (newToken: string, newUser: User) => {
     localStorage.setItem("token", newToken);
     setToken(newToken);

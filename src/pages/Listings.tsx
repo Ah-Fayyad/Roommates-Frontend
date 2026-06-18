@@ -77,7 +77,7 @@ const Listings = () => {
     e.stopPropagation();
 
     if (!token) {
-      alert("Please login to add favorites");
+      alert(t('login_to_favorite'));
       return;
     }
 
@@ -99,7 +99,7 @@ const Listings = () => {
       }
     } catch (error) {
       console.error("Failed to toggle favorite", error);
-      alert("Could not update favorite. Please try again.");
+      alert(t('failed_toggle_favorite'));
     }
   };
 
@@ -577,7 +577,7 @@ const Listings = () => {
                         className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800"
                       />
                       <span className="text-gray-700 dark:text-gray-300">
-                        {amenity}
+                        {t(amenity)}
                       </span>
                     </label>
                   ))}
@@ -586,7 +586,7 @@ const Listings = () => {
 
               <div>
                 <h4 className="mb-3 font-semibold text-gray-900 dark:text-white">
-                  Type
+                  {t('type')}
                 </h4>
                 <div className="flex gap-2">
                   {["all", "private", "shared", "studio"].map((type) => (
@@ -598,7 +598,7 @@ const Listings = () => {
                         : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300"
                         }`}
                     >
-                      {type}
+                      {t(type)}
                     </button>
                   ))}
                 </div>

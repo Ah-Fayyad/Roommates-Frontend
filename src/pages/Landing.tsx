@@ -108,10 +108,10 @@ const Landing = () => {
                     </p>
 
                     <div className="animate-fadeInUp stagger-3 flex flex-col items-center justify-center gap-4 sm:flex-row">
-                        <Link to="/listings" className="w-full sm:w-auto">
+                        <Link to={isAuthenticated ? "/listings" : "/login"} className="w-full sm:w-auto">
                             <Button size="lg" className="btn-animate gradient-primary w-full border-0 px-8 py-6 text-lg font-semibold text-white shadow-xl hover:shadow-2xl sm:w-auto">
                                 <Search className="me-2 h-5 w-5" />
-                                {t('browse_listings')}
+                                {isAuthenticated ? t('browse_listings') : t('login')}
                             </Button>
                         </Link>
                         {!isAuthenticated ? (
