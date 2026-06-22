@@ -61,8 +61,13 @@ const Profile = () => {
         location: user.location || prev.location,
         major: user.major || prev.major,
         year: user.year || prev.year,
-        preferences: user.preferences || prev.preferences,
-        interests: user.interests || prev.interests
+        preferences: {
+          cleanliness: user.preferences?.cleanliness ?? prev.preferences.cleanliness,
+          quietHours: user.preferences?.quietHours ?? prev.preferences.quietHours,
+          socializing: user.preferences?.socializing ?? prev.preferences.socializing,
+          cooking: user.preferences?.cooking ?? prev.preferences.cooking,
+        },
+        interests: user.interests || prev.interests,
       }));
     }
   }, [user]);
@@ -352,12 +357,12 @@ const Profile = () => {
                 {t("interests")}
               </h2>
               <div className="flex flex-wrap gap-2">
-                {profile.interests.map((interest, index) => (
+                {profile.interests.map((interest: string, index: number) => (
                   <span
                     key={index}
                     className="rounded-full bg-indigo-50 px-4 py-2 text-sm font-medium text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400"
                   >
-                    {t(interest.toLowerCase(), interest)}
+                    {t(interest.toLowerCase())}
                   </span>
                 ))}
               </div>

@@ -10,6 +10,21 @@ interface User {
   university?: string;
   bio?: string;
   phoneNumber?: string;
+  phone?: string;
+  location?: string;
+  major?: string;
+  year?: string;
+  preferences?: {
+    cleanliness?: number;
+    quietHours?: number;
+    socializing?: number;
+    cooking?: number;
+  };
+  interests?: string[];
+  listingsCount?: number;
+  favoritesCount?: number;
+  chatsCount?: number;
+  rating?: number;
   role: "USER" | "ADMIN" | "LANDLORD" | "ADVERTISER";
   isVerified?: boolean;
   verificationStatus?: "PENDING" | "VERIFIED" | "REJECTED" | "NONE";
