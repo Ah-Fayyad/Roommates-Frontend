@@ -1,11 +1,45 @@
+# Node modules
 node_modules/
-dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
 .env
 .env.local
-.env.development
 .env.production
-*.tsbuildinfo
-.DS_Store
-coverage/
+.env.development
+
+# Build outputs
+dist/
+build/
+*.log
+
+# IDE
 .vscode/
 .idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+coverage/
+.nyc_output/
+
+# Prisma
+backend/prisma/migrations/
+backend/prisma/*.db
+backend/prisma/*.db-journal
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Uploads
+uploads/
+public/uploads/
